@@ -1,6 +1,10 @@
 from . import account
+from .forms import LoginForm
 
 
-@account.route('/', methods=['GET'])
-def index():
-    return 'Hi'
+@account.route('/login', methods=["POST"])
+def login():
+    form = LoginForm()
+    if form.validate():
+        return "validate"
+    return "invalidate"
