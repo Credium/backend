@@ -2,13 +2,19 @@ from . import account
 from .forms import LoginForm
 
 
+@account.before_request()
+def token_parsing():
+    pass
+
+
 @account.route('/login', methods=["POST"])
 def login():
-    # todo 로그인
     form = LoginForm()
     if form.validate():
-        return "validate"
-    return "invalidate"
+        user = form.auth()
+        if user is not None:
+            return user.username
+    return "invalidate", 405
 
 
 @account.route('/logout', methods=["POST"])
