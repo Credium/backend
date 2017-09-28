@@ -17,8 +17,3 @@ def db(app):
     yield _db
     _db.session.remove()
     _db.drop_all()
-
-
-@pytest.yield_fixture()
-def client(app):
-    return app.test_client()
