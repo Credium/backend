@@ -5,8 +5,8 @@ from app.account.models import User
 
 class TestAccountView:
 
-    def get_guest1_queryset(self):
-        return User.query.filter_by(username="guest1")
+    def get_guest1(self):
+        return User.query.filter_by(username="guest1").first()
 
     def get_auth_header(self, token):
         return {
@@ -33,9 +33,8 @@ class TestAccountView:
         assert response.status_code == 401
         assert response.data.decode("utf-8") == "invalidate"
 
-    def test_logout(self, client):
+    def test_logout(self, client, guest1):
         url = url_for("account.logout")
-        guest1 = self.get_guest1_queryset().first()
         header = self.get_auth_header(guest1.token)
         response = client.get(url,
                               header=header)
@@ -51,16 +50,14 @@ class TestAccountView:
         assert response.status_code == 201
         assert "token" in response.data.decode('utf-8')
 
-    def test_delete(self, client):
+    def test_delete(self, client, guest1):
         url = url_for("account.delete")
-        guest1 = self.get_guest1_queryset()
         client.post(url,
-                    header=self.get_auth_header(guest1.first().token))
-        assert guest1.first() is None
+                    header=self.get_auth_header(guest1.token))
+        assert self.get_guest1() is None
 
-    def test_update(self, client):
+    def test_update(self, client, guest1):
         url = url_for("account.update")
-        guest1 = self.get_guest1_queryset().first()
         data = {
             "username": "guest1_update",
             "password": "guest1_update"
@@ -68,13 +65,11 @@ class TestAccountView:
         response = client.post(url,
                                data=data,
                                header=self.get_auth_header(guest1.token))
-        guest1_update = self.get_guest1_queryset().first()
         assert response.status_code == 200
-        assert guest1_update.username == "guest1_update"
+        assert guest1.username == "guest1_update"
 
-    def test_user_info(self, client):
+    def test_user_info(self, client, guest1):
         url = url_for("account.user_info")
-        guest1 = self.get_guest1_queryset().first()
         response = client.get(url,
                               header=self.get_auth_header(guest1.token))
         assert response.status_code == 200
