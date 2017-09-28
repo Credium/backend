@@ -47,13 +47,14 @@ class TestAccountView:
         assert response.json["ok"] == False
         assert response.json["error"] == "invalidated user"
 
-    @pytest.mark.skip()
     def test_logout(self, client, guest1):
         url = url_for("account.logout")
+        token = guest1.token
         header = self.get_auth_header(guest1.token)
         response = client.get(url,
-                              header=header)
+                              headers=header)
         assert response.status_code == 200
+        assert token != guest1.token
 
     @pytest.mark.skip()
     def test_register(self, client):

@@ -1,14 +1,19 @@
+from flask import g, jsonify, request
+
 from . import account
 from .forms import LoginForm
-from app import login_manager
-from flask import jsonify
-from flask_login import login_user, logout_user, current_user, login_required
 from .models import User
 
 
-@login_manager.user_loader
-def load_user(user_id):
-    return User.query.filter_by(id=user_id).first()
+@account.before_request
+def get_user_token():
+    g.user = None
+    token = request.headers.get("Authorization", None)
+    if token is not None:
+        user = User.query.filter_by(token=token).first()
+        if user is None:
+            return "token is not valid", 403
+        g.user = user
 
 
 @account.route('/login', methods=["POST"])
@@ -20,15 +25,14 @@ def login():
     user = form.auth()
     if user is None:
         return jsonify({"ok": False, "error": "invalidated user"}), 405
-    user.authenticated = True
-    login_user(user, remember=True)
     return jsonify({"ok": True, "user": user.dict()}), 200
 
 
-@account.route('/logout', methods=["POST"])
+@account.route('/logout', methods=["GET"])
 def logout():
-    # todo 로그아웃
-    pass
+    if g.user is not None:
+        g.user.change_token()
+    return jsonify({"status": True})
 
 
 @account.route('/register', methods=["POST"])

@@ -13,23 +13,15 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(64), unique=True)
     password_hash = db.Column(db.String(128))
-    token = db.Column(db.String(40), default=generate_token)
-    authenticated = db.Column(db.Boolean, default=False)
+    token = db.Column(db.String(40), default=generate_token, unique=True)
 
     def verify_password(self, password_hash):
         return self.password_hash == password_hash
 
-    def is_active(self):
-        return True
-
-    def get_id(self):
-        return self.id
-
-    def is_authenticated(self):
-        return self.authenticated
-
-    def is_anonymous(self):
-        return False
+    def change_token(self):
+        self.token = generate_token()
+        db.session.add(self)
+        db.session.commit()
 
     def dict(self):
         info = {
@@ -44,6 +36,5 @@ class User(db.Model):
             "username": self.username,
             "password_hash": self.password_hash,
             "token": self.token,
-            "authenticated": self.authenticated,
         }
-        return "User(username={username},password_hash={password_hash},token={token},authenticated={authenticated})".format(**user_info)
+        return "User(username={username},password_hash={password_hash},token={token})".format(**user_info)
