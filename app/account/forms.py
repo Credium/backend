@@ -10,8 +10,11 @@ class LoginForm(FlaskForm):
 
     def auth(self):
         username = self.username.data
-        password = self.password.data
+        password_hash = self.password.data
         user = User.query.filter_by(username=username).first()
-        if user is not None:
-            if user.verify_password(password):
-                return user
+        if user is None:
+            return None
+        if not user.verify_password(password_hash):
+            return None
+
+        return user
