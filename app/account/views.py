@@ -1,15 +1,28 @@
 from . import account
 from .forms import LoginForm
+from app import login_manager
+from flask import jsonify
+from flask_login import login_user, logout_user, current_user, login_required
+from .models import User
+
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.filter_by(id=user_id).first()
 
 
 @account.route('/login', methods=["POST"])
 def login():
     form = LoginForm()
-    if form.validate():
-        user = form.auth()
-        if user is not None:
-            return user.username
-    return "invalidate", 405
+    if not form.validate():
+        return jsonify({"ok": False, "error": "invalidated form"}), 405
+
+    user = form.auth()
+    if user is None:
+        return jsonify({"ok": False, "error": "invalidated user"}), 405
+    user.authenticated = True
+    login_user(user, remember=True)
+    return jsonify({"ok": True, "user": user.dict()}), 200
 
 
 @account.route('/logout', methods=["POST"])
