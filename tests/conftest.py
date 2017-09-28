@@ -11,7 +11,7 @@ def app():
     ctx.pop()
 
 
-@pytest.yield_fixture()
+@pytest.yield_fixture(scope="function")
 def db(app):
     _db.create_all()
     yield _db
