@@ -2,7 +2,6 @@ from flask_wtf import FlaskForm
 from wtforms import PasswordField, StringField
 from wtforms.validators import Length, DataRequired
 from .models import User
-from flask import abort
 
 
 class LoginForm(FlaskForm):
@@ -16,4 +15,3 @@ class LoginForm(FlaskForm):
         if user is not None:
             if user.verify_password(password):
                 return user
-        abort(404)

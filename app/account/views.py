@@ -2,11 +2,6 @@ from . import account
 from .forms import LoginForm
 
 
-@account.before_request()
-def token_parsing():
-    pass
-
-
 @account.route('/login', methods=["POST"])
 def login():
     form = LoginForm()
