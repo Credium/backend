@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms import PasswordField, StringField
-from wtforms.validators import DataRequired, Length
+from wtforms.validators import DataRequired, Length, EqualTo
 
 from .models import User
 
@@ -19,3 +19,11 @@ class LoginForm(FlaskForm):
             return None
 
         return user
+
+
+class RegisterForm(FlaskForm):
+    username = StringField('Username', validators=[Length(4, 64)])
+    password = PasswordField('Password', validators=[
+        DataRequired(), EqualTo("confirm")
+    ])
+    confirm = PasswordField('Password confirm')
