@@ -1,7 +1,7 @@
 import pytest
 from flask import url_for
 
-from app.account.models import User
+from app.account.models import User, generate_token
 
 
 class TestAccountView:
@@ -22,7 +22,7 @@ class TestAccountView:
         }
         response = client.post(url, data=data)
         assert response.status_code == 200
-        assert response.json["ok"] == True
+        assert response.json["status"] == True
         assert response.json["user"]["username"] == "guest1"
 
     def test_login_fail_invalid_form(self, client):
@@ -32,8 +32,8 @@ class TestAccountView:
             "password": "guest1"
         }
         response = client.post(url, data=data)
-        assert response.status_code == 405
-        assert response.json["ok"] == False
+        assert response.status_code == 400
+        assert response.json["status"] == False
         assert response.json["error"] == "invalidated form"
 
     def test_login_fail_invalid_user(self, client):
@@ -43,11 +43,11 @@ class TestAccountView:
             "password": "guest1"
         }
         response = client.post(url, data=data)
-        assert response.status_code == 405
-        assert response.json["ok"] == False
+        assert response.status_code == 400
+        assert response.json["status"] == False
         assert response.json["error"] == "invalidated user"
 
-    def test_logout(self, client, guest1):
+    def test_logout_success(self, client, guest1):
         url = url_for("account.logout")
         token = guest1.token
         header = self.get_auth_header(guest1.token)
@@ -56,41 +56,88 @@ class TestAccountView:
         assert response.status_code == 200
         assert token != guest1.token
 
-    @pytest.mark.skip()
-    def test_register(self, client):
+    def test_logout_fail(self, client, guest1):
+        url = url_for("account.logout")
+        invalid_token = generate_token()
+        header = self.get_auth_header(invalid_token)
+        response = client.get(url,
+                              headers=header)
+        assert response.status_code == 401
+        assert response.json["status"] == False
+        assert response.json["error"] == "token is not valid"
+
+    def test_register_success(self, client):
         url = url_for("account.register")
         data = {
             "username": "guest2",
-            "password": "guest2"
+            "password": "guest2",
+            "confirm": "guest2"
         }
-        response = client.post(url, data)
+        response = client.post(url, data=data)
         assert response.status_code == 201
-        assert "token" in response.data.decode('utf-8')
+        assert "token" in response.json["user"]
+        assert len(response.json["user"]["token"]) == 40
 
-    @pytest.mark.skip()
-    def test_delete(self, client, guest1):
+    def test_register_fail(self, client):
+        url = url_for("account.register")
+        data = {
+            "username": "guest2",
+            "password": "guest2",
+            "confirm": "guest3"
+        }
+        response = client.post(url, data=data)
+        assert response.status_code == 400
+        assert response.json["status"] == False
+        assert response.json["error"] == "invalidated form"
+
+    def test_delete_success(self, client, guest1):
+        assert self.get_guest1() is not None
         url = url_for("account.delete")
-        client.post(url,
-                    header=self.get_auth_header(guest1.token))
+        response = client.delete(url,
+                                 headers=self.get_auth_header(guest1.token))
+        assert response.status_code == 200
         assert self.get_guest1() is None
 
-    @pytest.mark.skip()
-    def test_update(self, client, guest1):
+    def test_delete_fail(self, client, guest1):
+        assert self.get_guest1() is not None
+        url = url_for("account.delete")
+        invalid_token = generate_token()
+        response = client.delete(url,
+                                 headers=self.get_auth_header(invalid_token))
+        assert response.status_code == 401
+        assert response.json["status"] == False
+        assert response.json["error"] == "token is not valid"
+        assert self.get_guest1() is not None
+
+    def test_update_success(self, client, guest1):
         url = url_for("account.update")
         data = {
             "username": "guest1_update",
             "password": "guest1_update"
         }
-        response = client.post(url,
-                               data=data,
-                               header=self.get_auth_header(guest1.token))
+        response = client.put(url,
+                              data=data,
+                              headers=self.get_auth_header(guest1.token))
         assert response.status_code == 200
         assert guest1.username == "guest1_update"
 
-    @pytest.mark.skip()
+    def test_update_fail(self, client, guest1):
+        url = url_for("account.update")
+        data = {
+            "username": "guest1_update",
+            "password": "guest1_update"
+        }
+        response = client.put(url,
+                              data=data,
+                              headers=self.get_auth_header(guest1.token))
+        assert response.status_code == 200
+        assert response.json["status"] == True
+        assert guest1.username == "guest1_update"
+
     def test_user_info(self, client, guest1):
         url = url_for("account.user_info")
         response = client.get(url,
-                              header=self.get_auth_header(guest1.token))
+                              headers=self.get_auth_header(guest1.token))
         assert response.status_code == 200
-        assert response.data.decode("utf-8")["username"] == "guest1"
+        assert response.json["status"] == True
+        assert response.json["user"]["username"] == "guest1"
