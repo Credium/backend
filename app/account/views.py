@@ -38,23 +38,34 @@ def logout():
 
 @account.route('/register', methods=["POST"])
 def register():
-    # todo 유저 등록
-    pass
+    form = RegisterForm(request.form)
+    if not form.validate():
+        return jsonify({"status": False, "error": "invalidated form"}), 400
+
+    user = User(username=form.username.data,
+                password_hash=form.password.data)
+    db.session.add(user)
+    db.session.commit()
+
+    return jsonify({"status": True, "user": user.dict()}), 201
 
 
 @account.route('/delete', methods=["DELETE"])
 def delete():
-    # todo 유저 회원 탈퇴
-    pass
+    db.session.delete(g.user)
+    db.session.commit()
+    return jsonify({"status": True}), 200
 
 
 @account.route('/update', methods=["PUT"])
 def update():
-    # todo 유저 정보 업데이트
-    pass
+    # todo: form으로 update data의 validate()수행
+    g.user.username = request.form.get("username")
+    g.user.password_hash = request.form.get("password")
+    db.session.commit()
+    return jsonify({"status": True}), 200
 
 
 @account.route('/user-info', methods=["GET"])
 def user_info():
-    # todo 토큰으로 유저 정보 반환
-    pass
+    return jsonify({"status": True, "user": g.user.dict()}), 200
