@@ -1,6 +1,7 @@
 from flask_wtf import FlaskForm
 from wtforms import PasswordField, StringField
-from wtforms.validators import Length, DataRequired
+from wtforms.validators import DataRequired, Length, EqualTo
+
 from .models import User
 
 
@@ -10,8 +11,19 @@ class LoginForm(FlaskForm):
 
     def auth(self):
         username = self.username.data
-        password = self.password.data
+        password_hash = self.password.data
         user = User.query.filter_by(username=username).first()
-        if user is not None:
-            if user.verify_password(password):
-                return user
+        if user is None:
+            return None
+        if not user.verify_password(password_hash):
+            return None
+
+        return user
+
+
+class RegisterForm(FlaskForm):
+    username = StringField('Username', validators=[Length(4, 64)])
+    password = PasswordField('Password', validators=[
+        DataRequired(), EqualTo("confirm")
+    ])
+    confirm = PasswordField('Password confirm')

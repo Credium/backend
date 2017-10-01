@@ -1,42 +1,71 @@
+from flask import g, jsonify, request
+
 from . import account
-from .forms import LoginForm
+from app import db
+from .forms import LoginForm, RegisterForm
+from .models import User
+
+
+@account.before_request
+def get_user_token():
+    g.user = None
+    token = request.headers.get("Authorization", None)
+    if token is not None:
+        user = User.query.filter_by(token=token).first()
+        if user is None:
+            return jsonify({"status": False, "error": "token is not valid"}), 401
+        g.user = user
 
 
 @account.route('/login', methods=["POST"])
 def login():
     form = LoginForm()
-    if form.validate():
-        user = form.auth()
-        if user is not None:
-            return user.username
-    return "invalidate", 405
+    if not form.validate():
+        return jsonify({"status": False, "error": "invalidated form"}), 400
+
+    user = form.auth()
+    if user is None:
+        return jsonify({"status": False, "error": "invalidated user"}), 400
+    return jsonify({"status": True, "user": user.dict()}), 200
 
 
-@account.route('/logout', methods=["POST"])
+@account.route('/logout', methods=["GET"])
 def logout():
-    # todo 로그아웃
-    pass
+    if g.user is not None:
+        g.user.change_token()
+    return jsonify({"status": True})
 
 
 @account.route('/register', methods=["POST"])
 def register():
-    # todo 유저 등록
-    pass
+    form = RegisterForm(request.form)
+    if not form.validate():
+        return jsonify({"status": False, "error": "invalidated form"}), 400
+
+    user = User(username=form.username.data,
+                password_hash=form.password.data)
+    db.session.add(user)
+    db.session.commit()
+
+    return jsonify({"status": True, "user": user.dict()}), 201
 
 
 @account.route('/delete', methods=["DELETE"])
 def delete():
-    # todo 유저 회원 탈퇴
-    pass
+    db.session.delete(g.user)
+    db.session.commit()
+    return jsonify({"status": True}), 200
 
 
 @account.route('/update', methods=["PUT"])
 def update():
-    # todo 유저 정보 업데이트
-    pass
+    # todo: form으로 update data의 validate()수행
+    g.user.username = request.form.get("username")
+    g.user.password_hash = request.form.get("password")
+    db.session.commit()
+    return jsonify({"status": True}), 200
 
 
 @account.route('/user-info', methods=["GET"])
 def user_info():
-    # todo 토큰으로 유저 정보 반환
-    pass
+    return jsonify({"status": True, "user": g.user.dict()}), 200

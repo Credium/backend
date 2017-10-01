@@ -2,7 +2,6 @@ import binascii
 import os
 
 from app import db
-from werkzeug.security import generate_password_hash, check_password_hash
 
 
 def generate_token():
@@ -14,18 +13,28 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(64), unique=True)
     password_hash = db.Column(db.String(128))
-    token = db.Column(db.String(40), default=generate_token)
+    token = db.Column(db.String(40), default=generate_token, unique=True)
 
-    @property
-    def password(self):
-        raise AttributeError('password is not a readable attribute')
+    def verify_password(self, password_hash):
+        return self.password_hash == password_hash
 
-    @password.setter
-    def password(self, password):
-        self.password_hash = generate_password_hash(password)
+    def change_token(self):
+        self.token = generate_token()
+        db.session.add(self)
+        db.session.commit()
 
-    def verify_password(self, password):
-        return check_password_hash(self.password_hash, password)
+    def dict(self):
+        info = {
+            "id": self.id,
+            "username": self.username,
+            "token": self.token,
+        }
+        return info
 
     def __repr__(self):
-        return "User(username)".format(self.username, self.token)
+        user_info = {
+            "username": self.username,
+            "password_hash": self.password_hash,
+            "token": self.token,
+        }
+        return "User(username={username},password_hash={password_hash},token={token})".format(**user_info)
