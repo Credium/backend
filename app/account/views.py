@@ -1,7 +1,8 @@
 from flask import g, jsonify, request
 
-from . import account
 from app import db
+
+from . import account
 from .forms import LoginForm, RegisterForm
 from .models import User
 
@@ -43,7 +44,7 @@ def register():
         return jsonify({"status": False, "error": "invalidated form"}), 400
 
     user = User(username=form.username.data,
-                password_hash=form.password.data)
+                password=form.password.data)
     db.session.add(user)
     db.session.commit()
 
