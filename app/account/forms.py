@@ -13,7 +13,6 @@ class LoginForm(FlaskForm):
         username = self.username.data
         password = self.password.data
         user = User.query.filter_by(username=username).first()
-        print(user.verify_password(password))
         if user is None:
             return None
         if not user.verify_password(password):

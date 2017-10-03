@@ -44,7 +44,7 @@ def register():
         return jsonify({"status": False, "error": "invalidated form"}), 400
 
     user = User(username=form.username.data,
-                password_hash=form.password.data)
+                password=form.password.data)
     db.session.add(user)
     db.session.commit()
 

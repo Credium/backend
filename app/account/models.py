@@ -16,6 +16,7 @@ class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(64), unique=True)
     password_hash = db.Column(db.String(128))
+    is_superuser = db.Column(db.Boolean, default=False)
     token = db.Column(db.String(40), default=generate_token, unique=True)
 
     def verify_password(self, password):

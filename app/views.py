@@ -37,4 +37,6 @@ class AdminIndexView(_AdminIndexView):
 class ModelView(_ModelView):
 
     def is_accessible(self):
-        return login.current_user.is_authenticated
+        current_user = login.current_user
+        return current_user.is_authenticated \
+               and current_user.is_superuser
