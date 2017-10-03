@@ -37,4 +37,6 @@ class User(db.Model):
             "password_hash": self.password_hash,
             "token": self.token,
         }
-        return "User(username={username},password_hash={password_hash},token={token})".format(**user_info)
+        return "User(username={username}," \
+               "password_hash={password_hash}," \
+               "token={token})".format(**user_info)

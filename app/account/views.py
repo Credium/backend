@@ -1,7 +1,8 @@
 from flask import g, jsonify, request
 
-from . import account
 from app import db
+
+from . import account
 from .forms import LoginForm, RegisterForm
 from .models import User
 
