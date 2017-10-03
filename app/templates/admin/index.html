@@ -1,0 +1,16 @@
+{% extends 'admin/base.html' %}
+{% block body %}
+    {% if current_user.is_authenticated %}
+        <h1>환영합니다. {{ current_user.username }}님</h1>
+    {% else %}
+        <h1>Login</h1>
+        <form method="post" action="{{ url_for("admin.login") }}" >
+            <ul>
+                {{ form.csrf_token }}
+                <li>Username: <input type="text" name="username" /></li>
+                <li>Password: <input type="password" name="password" /></li>
+                <li><button type="submit" >Submit</button></li>
+            </ul>
+        </form>
+    {% endif %}
+{% endblock %}
