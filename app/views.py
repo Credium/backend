@@ -9,7 +9,7 @@ from app.account.forms import LoginForm
 
 class AdminIndexView(_AdminIndexView):
 
-    @expose('/')
+    @expose('/', methods=["GET"])
     def index(self):
         form = LoginForm()
         self._template_args["form"] = form
@@ -31,7 +31,7 @@ class AdminIndexView(_AdminIndexView):
         flash("login success")
         return redirect(url_for('.index'))
 
-    @expose('/logout/')
+    @expose('/logout/', methods=["POST"])
     @login_required
     def logout(self):
         logout_user()
