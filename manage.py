@@ -3,7 +3,7 @@ import os
 from flask_script import Manager, Shell
 import pytest
 
-from app import create_app, db
+from app.application import create_app, db
 from app.account.models import User
 
 app = create_app(os.getenv('FLASK_CONFIG') or 'default')
