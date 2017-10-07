@@ -10,12 +10,6 @@ app = create_app(os.getenv('FLASK_CONFIG') or 'default')
 manager = Manager(app)
 
 
-def make_shell_context():
-    return dict(app=app, db=db, User=User)
-
-manager.add_command("shell", Shell(make_context=make_shell_context))
-
-
 @manager.command
 def runserver():
     app.run()
@@ -27,11 +21,17 @@ def test():
 
 
 @manager.command
+def shell():
+    def make_shell_context():
+        return dict(app=app, db=db, User=User)
+    Shell(make_context=make_shell_context).run(False, False, False, False)
+
+
+@manager.command
 def create_all():
-    with app.app_context():
-        tables_before = set(db.engine.table_names())
-        db.create_all()
-        tables_after = set(db.engine.table_names())
+    tables_before = set(db.engine.table_names())
+    db.create_all()
+    tables_after = set(db.engine.table_names())
     created_tables = tables_after - tables_before
     for table in created_tables:
         print('Created table: {}'.format(table))

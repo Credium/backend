@@ -8,6 +8,7 @@ db = SQLAlchemy()
 login_manager = LoginManager()
 admin = Admin(base_template="admin/index.html")
 
+
 def create_app(config_name):
     app = Flask(__name__)
     app.config.from_object(config[config_name])
