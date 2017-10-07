@@ -1,4 +1,4 @@
-from app import admin, db
+from app.application import admin, db
 from app.views import ModelView
 
 from .models import User
