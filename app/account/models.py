@@ -7,6 +7,7 @@ from sqlalchemy_utils.types.choice import ChoiceType
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from app.application import db, login_manager
+from app.meeting.models import Meeting
 
 
 def generate_token():
@@ -82,8 +83,8 @@ class PublisherInfo(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     user = relationship("User", uselist=False, back_populates="publisher_info")
+    make_meetings = relationship(Meeting, back_populates="publisher")
     about = db.Column(db.String(), nullable=True)
-    accumulate_money = db.Column(db.Integer(), default=0)
 
     def __repr__(self):
         return "<%s %s>" % (self.__class__.__name__,
