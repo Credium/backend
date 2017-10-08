@@ -3,7 +3,7 @@ import datetime
 import pytest
 
 from app.account.models import PublisherInfo, User
-from app.meeting.models import Meeting
+from app.meeting.models import Meeting, Participate
 
 
 @pytest.fixture
@@ -27,12 +27,21 @@ def publisher1(db):
 def meeting1(db, publisher1):
     meeting_time = datetime.datetime.strptime("2014-01-21 00:00:00", "%Y-%m-%d %H:%M:%S")
     meeting = Meeting(publisher=publisher1.publisher_info,
-                       title="title1",
-                       content="content1",
-                       meeting_time=meeting_time,
-                       participation_number="5",
-                       acceptance_number="10"
-                       )
+                      title="title1",
+                      content="content1",
+                      meeting_time=meeting_time,
+                      participation_number="5",
+                      acceptance_number="10"
+                      )
     db.session.add(meeting)
     db.session.commit()
     return meeting
+
+
+@pytest.fixture
+def participate1(db, guest1, meeting1):
+    participate = Participate(signaler=guest1,
+                              meeting=meeting1)
+    db.session.add(participate)
+    db.session.commit()
+    return participate
