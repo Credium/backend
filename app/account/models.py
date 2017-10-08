@@ -26,6 +26,12 @@ class User(UserMixin, db.Model):
     type = db.Column(ChoiceType(TYPES), default="signaler")
     token = db.Column(db.String(40), default=generate_token, unique=True)
     publisher_info = relationship("PublisherInfo", uselist=False, back_populates="user")
+    following = relationship("Follow",
+                             back_populates="subject",
+                             foreign_keys="Follow.subject_id")
+    follower = relationship("Follow",
+                            back_populates="object",
+                            foreign_keys="Follow.object_id")
 
     def verify_password(self, password):
         return check_password_hash(self.password_hash, password)
@@ -81,6 +87,23 @@ class PublisherInfo(db.Model):
     def __repr__(self):
         return "<%s %s>" % (self.__class__.__name__,
                             self.user.username)
+
+
+class Follow(db.Model):
+    __tablename__ = 'follow'
+    subject_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True)
+    object_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True)
+    subject = relationship("User",
+                           back_populates="following",
+                           foreign_keys="Follow.subject_id")
+    object = relationship("User",
+                          back_populates="follower",
+                          foreign_keys="Follow.object_id")
+
+    def __repr__(self):
+        return "<%s %s->%s>" % (self.__class__.__name__,
+                                self.subject.username,
+                                self.object.user.username)
 
 
 @login_manager.user_loader

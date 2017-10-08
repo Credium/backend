@@ -1,8 +1,8 @@
 import pytest
 
-from app.application import (create_app,
-                             db as _db)
 from app.account.models import User
+from app.application import db as _db
+from app.application import create_app
 
 
 @pytest.yield_fixture(scope="session")
