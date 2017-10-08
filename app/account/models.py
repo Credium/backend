@@ -25,6 +25,7 @@ class User(UserMixin, db.Model):
     password_hash = db.Column(db.String(128))
     type = db.Column(ChoiceType(TYPES), default="signaler")
     token = db.Column(db.String(40), default=generate_token, unique=True)
+    has_money = db.Column(db.Integer, default=0)
     publisher_info = relationship("PublisherInfo", uselist=False, back_populates="user")
     following = relationship("Follow",
                              back_populates="subject",

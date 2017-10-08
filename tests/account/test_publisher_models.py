@@ -40,4 +40,4 @@ class TestPublisherModel:
         follow = Follow.query.filter_by(subject=self.guest,
                                         object=self.publisher1).first()
         db.session.delete(follow)
-        assert not self.publisher1.follower
+        assert not Follow.query.filter_by(object=self.publisher1).count()
