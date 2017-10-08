@@ -30,8 +30,13 @@ class User(UserMixin, db.Model):
     def verify_password(self, password):
         return check_password_hash(self.password_hash, password)
 
+    @property
     def is_superuser(self):
         return self.type == "admin"
+
+    @property
+    def is_publisher(self):
+        return self.type == "publisher"
 
     @property
     def password(self):
@@ -72,6 +77,11 @@ class PublisherInfo(db.Model):
     user = relationship("User", uselist=False, back_populates="publisher_info")
     about = db.Column(db.String(), nullable=True)
     accumulate_money = db.Column(db.Integer(), default=0)
+
+    def __repr__(self):
+        return "<%s %s>" % (self.__class__.__name__,
+                            self.user.username)
+
 
 @login_manager.user_loader
 def load_user(user_id):
