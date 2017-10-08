@@ -7,6 +7,7 @@ from sqlalchemy_utils.types.choice import ChoiceType
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from app.application import db, login_manager
+from app.demand.models import MeetingDemand
 from app.meeting.models import Meeting, Participate
 
 
@@ -36,6 +37,8 @@ class User(UserMixin, db.Model):
                             foreign_keys="Follow.object_id")
     participate_meetings = relationship(Participate,
                                         back_populates="signaler")
+    demanding_meetings = relationship(MeetingDemand,
+                                      back_populates="signaler")
 
     def verify_password(self, password):
         return check_password_hash(self.password_hash, password)
@@ -87,6 +90,8 @@ class PublisherInfo(db.Model):
     user = relationship("User", uselist=False, back_populates="publisher_info")
     make_meetings = relationship(Meeting, back_populates="publisher")
     about = db.Column(db.String(), nullable=True)
+    demanded_meetings = relationship(MeetingDemand,
+                                      back_populates="publisher")
 
     def __repr__(self):
         return "<%s %s>" % (self.__class__.__name__,

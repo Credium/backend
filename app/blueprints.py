@@ -14,5 +14,6 @@ def _factory(partial_module_string, url_prefix):
 
 account = _factory('account', '/account')
 meeting = _factory('meeting', '/meeting')
+demand = _factory('demand', '/demand')
 
-all_blueprints = (account, meeting)
+all_blueprints = (account, meeting, demand)
