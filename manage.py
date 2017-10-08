@@ -4,7 +4,7 @@ from flask_script import Manager, Shell
 import pytest
 
 from app.application import create_app, db
-from app.account.models import User
+from app.account.models import User, PublisherInfo
 
 app = create_app(os.getenv('FLASK_CONFIG') or 'default')
 manager = Manager(app)
@@ -23,7 +23,7 @@ def test():
 @manager.command
 def shell():
     def make_shell_context():
-        return dict(app=app, db=db, User=User)
+        return dict(app=app, db=db, User=User, PublisherInfo=PublisherInfo)
     Shell(make_context=make_shell_context).run(False, False, False, False)
 
 

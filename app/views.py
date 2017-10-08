@@ -1,8 +1,8 @@
-from flask_login import login_user, current_user, login_required, logout_user
 from flask import flash, redirect, url_for
 from flask_admin import AdminIndexView as _AdminIndexView
 from flask_admin import expose
 from flask_admin.contrib.sqla import ModelView as _ModelView
+from flask_login import current_user, login_required, login_user, logout_user
 
 from app.account.forms import LoginForm
 

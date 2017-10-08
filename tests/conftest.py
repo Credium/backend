@@ -24,7 +24,7 @@ def db(app):
 
 @pytest.fixture(autouse=True)
 def admin_user(db):
-    admin_user = User(username="admin", password="admin", is_superuser=True)
+    admin_user = User(username="admin", password="admin", type="admin")
     db.session.add(admin_user)
     db.session.commit()
     return admin_user
