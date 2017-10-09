@@ -1,4 +1,3 @@
-import pytest
 from flask import url_for
 
 from app.account.models import User, generate_token

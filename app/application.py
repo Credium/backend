@@ -1,9 +1,11 @@
-from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager
-from config import config
-from flask_admin import Admin
 from importlib import import_module
+
+from flask import Flask
+from flask_admin import Admin
+from flask_login import LoginManager
+from flask_sqlalchemy import SQLAlchemy
+
+from config import config
 
 db = SQLAlchemy()
 login_manager = LoginManager()

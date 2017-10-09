@@ -2,9 +2,13 @@ import binascii
 import os
 
 from flask_login import UserMixin
+from sqlalchemy.orm import relationship
+from sqlalchemy_utils.types.choice import ChoiceType
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from app.application import db, login_manager
+from app.demand.models import MeetingDemand
+from app.meeting.models import Meeting, Participate
 
 
 def generate_token():
@@ -12,15 +16,44 @@ def generate_token():
 
 
 class User(UserMixin, db.Model):
+    TYPES = [
+        ("admin", "admin"),
+        ("signaler", "signaler"),
+        ("publisher", "publisher")
+    ]
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(64), unique=True)
     password_hash = db.Column(db.String(128))
-    is_superuser = db.Column(db.Boolean, default=False)
+    full_name = db.Column(db.String(32))
+    profile = db.Column(db.String)
+    job = db.Column(db.String(32))
+    phone_number = db.Column(db.String(16))
+    type = db.Column(ChoiceType(TYPES), default="signaler")
     token = db.Column(db.String(40), default=generate_token, unique=True)
+    has_money = db.Column(db.Integer, default=0)
+    publisher_info = relationship("PublisherInfo", uselist=False, back_populates="user")
+    following = relationship("Follow",
+                             back_populates="subject",
+                             foreign_keys="Follow.subject_id")
+    follower = relationship("Follow",
+                            back_populates="object",
+                            foreign_keys="Follow.object_id")
+    participate_meetings = relationship(Participate,
+                                        back_populates="signaler")
+    demanding_meetings = relationship(MeetingDemand,
+                                      back_populates="signaler")
 
     def verify_password(self, password):
         return check_password_hash(self.password_hash, password)
+
+    @property
+    def is_superuser(self):
+        return self.type == "admin"
+
+    @property
+    def is_publisher(self):
+        return self.type == "publisher"
 
     @property
     def password(self):
@@ -44,14 +77,42 @@ class User(UserMixin, db.Model):
         return info
 
     def __repr__(self):
-        user_info = {
-            "username": self.username,
-            "password_hash": self.password_hash,
-            "token": self.token,
-        }
-        return "User(username={username}," \
-               "password_hash={password_hash}," \
-               "token={token})".format(**user_info)
+        return "<%s %s>" % (self.__class__.__name__,
+                            self.username)
+
+
+class PublisherInfo(db.Model):
+    __tablename__ = "publisher_info"
+    id = db.Column(db.Integer, primary_key=True)
+    about = db.Column(db.String(), nullable=True)
+
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    user = relationship("User", uselist=False, back_populates="publisher_info")
+    make_meetings = relationship(Meeting, back_populates="publisher")
+    demanded_meetings = relationship(MeetingDemand,
+                                      back_populates="publisher")
+    active = db.Column(db.Boolean, default=False)
+
+    def __repr__(self):
+        return "<%s %s>" % (self.__class__.__name__,
+                            self.user.username)
+
+
+class Follow(db.Model):
+    __tablename__ = 'follow'
+    subject_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True)
+    object_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True)
+    subject = relationship("User",
+                           back_populates="following",
+                           foreign_keys="Follow.subject_id")
+    object = relationship("User",
+                          back_populates="follower",
+                          foreign_keys="Follow.object_id")
+
+    def __repr__(self):
+        return "<%s %s->%s>" % (self.__class__.__name__,
+                                self.subject.username,
+                                self.object.user.username)
 
 
 @login_manager.user_loader

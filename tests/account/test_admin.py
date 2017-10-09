@@ -1,4 +1,3 @@
-import pytest
 from flask import url_for
 
 
@@ -51,7 +50,6 @@ class TestAdminView:
         page_source = response.data.decode()
 
         assert "<h1>환영합니다. admin님</h1>" in page_source
-        
         url = url_for("admin.logout")
         response = client.post(url, data=data, follow_redirects=True)
         page_source = response.data.decode()
@@ -60,4 +58,3 @@ class TestAdminView:
         assert '<input type="text" name="username" />' in page_source
         assert '<input type="password" name="password" />' in page_source
         assert '<button type="submit" >Submit</button>' in page_source
-
