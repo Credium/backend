@@ -10,7 +10,6 @@ class PersonDemand(db.Model):
     explain = db.Column(db.String)
     job = db.Column(db.String(150))
     reference_link = db.Column(db.String)
-    # todo profile field
 
     def __repr__(self):
         return "<%s %s>" % (self.__class__.__name__,

@@ -13,10 +13,15 @@ class Meeting(db.Model):
                              back_populates="make_meetings")
     title = db.Column(db.String)
     content = db.Column(db.String)
-    meeting_time = db.Column(db.DateTime)
-    created_time = db.Column(db.DateTime, default=datetime.datetime.utcnow)
-    participation_number = db.Column(db.Integer)
     acceptance_number = db.Column(db.Integer)
+    when = db.Column(db.String(32))
+    where = db.Column(db.String(32))
+    entry_fee = db.Column(db.Integer)
+    entry_fee_type = db.Column(db.String(16))
+    active_meeting_time = db.Column(db.DateTime)
+    start_meeting_time = db.Column(db.DateTime)
+    end_meeting_time = db.Column(db.DateTime)
+    created_time = db.Column(db.DateTime, default=datetime.datetime.utcnow)
     participate_users = db.relationship("Participate", back_populates="meeting")
 
     def __repr__(self):
@@ -31,6 +36,7 @@ class Participate(db.Model):
     meeting_id = db.Column(db.Integer, db.ForeignKey("meeting.id"))
     signaler = relationship("User", back_populates="participate_meetings")
     meeting = relationship("Meeting", back_populates="participate_users")
+    word = db.Column(db.String(100))
 
     def __repr__(self):
         return "<%s %s->%s>" % (self.__class__.__name__,
