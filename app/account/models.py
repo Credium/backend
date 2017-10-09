@@ -25,6 +25,10 @@ class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(64), unique=True)
     password_hash = db.Column(db.String(128))
+    full_name = db.Column(db.String(32))
+    profile = db.Column(db.String)
+    job = db.Column(db.String(32))
+    phone_number = db.Column(db.String(16))
     type = db.Column(ChoiceType(TYPES), default="signaler")
     token = db.Column(db.String(40), default=generate_token, unique=True)
     has_money = db.Column(db.Integer, default=0)
@@ -73,25 +77,21 @@ class User(UserMixin, db.Model):
         return info
 
     def __repr__(self):
-        user_info = {
-            "username": self.username,
-            "password_hash": self.password_hash,
-            "token": self.token,
-        }
-        return "User(username={username}," \
-               "password_hash={password_hash}," \
-               "token={token})".format(**user_info)
+        return "<%s %s>" % (self.__class__.__name__,
+                            self.username)
 
 
 class PublisherInfo(db.Model):
     __tablename__ = "publisher_info"
     id = db.Column(db.Integer, primary_key=True)
+    about = db.Column(db.String(), nullable=True)
+
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     user = relationship("User", uselist=False, back_populates="publisher_info")
     make_meetings = relationship(Meeting, back_populates="publisher")
-    about = db.Column(db.String(), nullable=True)
     demanded_meetings = relationship(MeetingDemand,
                                       back_populates="publisher")
+    active = db.Column(db.Boolean, default=False)
 
     def __repr__(self):
         return "<%s %s>" % (self.__class__.__name__,
