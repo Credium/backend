@@ -3,8 +3,10 @@ import os
 from flask_script import Manager, Shell
 import pytest
 
-from app.application import create_app, db
-from app.account.models import User, PublisherInfo
+from app.application import create_app, db, admin
+from app.account.models import User, PublisherInfo, Follow
+from app.demand.models import MeetingDemand, PersonDemand
+from app.meeting.models import Meeting, Participate
 
 app = create_app(os.getenv('FLASK_CONFIG') or 'default')
 manager = Manager(app)
@@ -23,7 +25,17 @@ def test():
 @manager.command
 def shell():
     def make_shell_context():
-        return dict(app=app, db=db, User=User, PublisherInfo=PublisherInfo)
+        return dict(app=app,
+                    db=db,
+                    admin=admin,
+                    User=User,
+                    PublisherInfo=PublisherInfo,
+                    Follow=Follow,
+                    MeetingDemand=MeetingDemand,
+                    PersonDemand=PersonDemand,
+                    Meeting=Meeting,
+                    Participate=Participate,
+                    )
     Shell(make_context=make_shell_context).run(False, False, False, False)
 
 
