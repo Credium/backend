@@ -37,10 +37,6 @@ class User(UserMixin, db.Model):
     follower = relationship("Follow",
                             back_populates="object",
                             foreign_keys="Follow.object_id")
-    participate_meetings = relationship("Participate",
-                                        back_populates="signaler")
-    demanding_meetings = relationship("MeetingDemand",
-                                      back_populates="signaler")
 
     def verify_password(self, password):
         return check_password_hash(self.password_hash, password)
@@ -86,9 +82,6 @@ class PublisherInfo(db.Model):
 
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     user = relationship("User", uselist=False, back_populates="publisher_info")
-    make_meetings = relationship("AbcMeeting", back_populates="publisher")
-    demanded_meetings = relationship("MeetingDemand",
-                                      back_populates="publisher")
     active = db.Column(db.Boolean, default=False)
 
     def __repr__(self):

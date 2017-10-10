@@ -21,8 +21,8 @@ class MeetingDemand(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     signaler_id = db.Column(db.Integer, db.ForeignKey("users.id"))
     publisher_id = db.Column(db.Integer, db.ForeignKey("publisher_info.id"))
-    signaler = relationship("User", back_populates="demanding_meetings")
-    publisher = relationship("PublisherInfo", back_populates="demanded_meetings")
+    signaler = relationship("User", backref="demanding_meetings")
+    publisher = relationship("PublisherInfo", backref="demanded_meetings")
     title = db.Column(db.String)
     introduce = db.Column(db.String)
 

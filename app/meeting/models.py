@@ -5,12 +5,12 @@ from sqlalchemy.orm import relationship
 from app.application import db
 
 
-class AbcMeeting(db.Model):
-    __tablename__ = "meeting"
+class Meeting(db.Model):
+    __tablename__ = "meetings"
     id = db.Column(db.Integer, primary_key=True)
     publisher_id = db.Column(db.Integer, db.ForeignKey("publisher_info.id"))
     publisher = relationship("PublisherInfo",
-                             back_populates="make_meetings")
+                             backref="make_meetings")
     title = db.Column(db.String)
     content = db.Column(db.String)
     acceptance_number = db.Column(db.Integer)
@@ -33,9 +33,9 @@ class Participate(db.Model):
     __tablename__ = "participate"
     id = db.Column(db.Integer, primary_key=True)
     signaler_id = db.Column(db.Integer, db.ForeignKey("users.id"))
-    meeting_id = db.Column(db.Integer, db.ForeignKey("meeting.id"))
-    signaler = relationship("User", back_populates="participate_meetings")
-    meeting = relationship("AbcMeeting", back_populates="participate_users")
+    meeting_id = db.Column(db.Integer, db.ForeignKey("meetings.id"))
+    signaler = relationship("User", backref="participate_meetings")
+    meeting = relationship("Meeting", back_populates="participate_users")
     word = db.Column(db.String(100))
 
     def __repr__(self):
