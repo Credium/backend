@@ -21,6 +21,8 @@ def create_app(config_name):
 
     from .views import AdminIndexView
     admin.init_app(app, index_view=AdminIndexView())
+    from .admin import add_views_to_admin
+    add_views_to_admin(admin)
 
     from .blueprints import all_blueprints
     for bp in all_blueprints:
