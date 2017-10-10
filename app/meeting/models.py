@@ -5,7 +5,7 @@ from sqlalchemy.orm import relationship
 from app.application import db
 
 
-class Meeting(db.Model):
+class AbcMeeting(db.Model):
     __tablename__ = "meeting"
     id = db.Column(db.Integer, primary_key=True)
     publisher_id = db.Column(db.Integer, db.ForeignKey("publisher_info.id"))
@@ -35,7 +35,7 @@ class Participate(db.Model):
     signaler_id = db.Column(db.Integer, db.ForeignKey("users.id"))
     meeting_id = db.Column(db.Integer, db.ForeignKey("meeting.id"))
     signaler = relationship("User", back_populates="participate_meetings")
-    meeting = relationship("Meeting", back_populates="participate_users")
+    meeting = relationship("AbcMeeting", back_populates="participate_users")
     word = db.Column(db.String(100))
 
     def __repr__(self):

@@ -6,7 +6,7 @@ import pytest
 from app.application import create_app, db, admin
 from app.account.models import User, PublisherInfo, Follow
 from app.demand.models import MeetingDemand, PersonDemand
-from app.meeting.models import Meeting, Participate
+from app.meeting.models import AbcMeeting, Participate
 
 app = create_app(os.getenv('FLASK_CONFIG') or 'default')
 manager = Manager(app)

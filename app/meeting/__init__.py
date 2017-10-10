@@ -1,1 +1,1 @@
-from .models import Meeting
+from . import models
