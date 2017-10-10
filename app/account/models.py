@@ -7,8 +7,6 @@ from sqlalchemy_utils.types.choice import ChoiceType
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from app.application import db, login_manager
-from app.demand.models import MeetingDemand
-from app.meeting.models import Meeting, Participate
 
 
 def generate_token():
@@ -39,9 +37,9 @@ class User(UserMixin, db.Model):
     follower = relationship("Follow",
                             back_populates="object",
                             foreign_keys="Follow.object_id")
-    participate_meetings = relationship(Participate,
+    participate_meetings = relationship("Participate",
                                         back_populates="signaler")
-    demanding_meetings = relationship(MeetingDemand,
+    demanding_meetings = relationship("MeetingDemand",
                                       back_populates="signaler")
 
     def verify_password(self, password):
@@ -88,8 +86,8 @@ class PublisherInfo(db.Model):
 
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     user = relationship("User", uselist=False, back_populates="publisher_info")
-    make_meetings = relationship(Meeting, back_populates="publisher")
-    demanded_meetings = relationship(MeetingDemand,
+    make_meetings = relationship("AbcMeeting", back_populates="publisher")
+    demanded_meetings = relationship("MeetingDemand",
                                       back_populates="publisher")
     active = db.Column(db.Boolean, default=False)
 
