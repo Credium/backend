@@ -37,5 +37,19 @@ def create_all():
         print('Created table: {}'.format(table))
 
 
+@manager.option('-u', '--username', default='admin')
+@manager.option('-p', '--password', default='admin')
+def create_admin(username, password):
+    user = User(username=username, password=password, type="admin")
+    try:
+        db.session.add(user)
+        db.session.commit()
+        print("Created admin user: {}".format(user))
+    except BaseException as e:
+        db.session.rollback()
+        print("Fail to create admin user")
+        print("Error message: {}".format(e))
+
+
 if __name__ == "__main__":
     manager.run()
