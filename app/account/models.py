@@ -20,17 +20,26 @@ class User(UserMixin, db.Model):
         ("publisher", "publisher")
     ]
     __tablename__ = 'users'
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(64), unique=True)
+    id = db.Column(db.Integer,
+                   primary_key=True)
+    username = db.Column(db.String(64),
+                         unique=True)
     password_hash = db.Column(db.String(128))
+    type = db.Column(ChoiceType(TYPES),
+                     default="signaler")
+    token = db.Column(db.String(40),
+                      default=generate_token,
+                      unique=True)
+
     full_name = db.Column(db.String(32))
-    profile = db.Column(db.String)
+    profile_photo_path = db.Column(db.String)
     job = db.Column(db.String(32))
     phone_number = db.Column(db.String(16))
-    type = db.Column(ChoiceType(TYPES), default="signaler")
-    token = db.Column(db.String(40), default=generate_token, unique=True)
-    has_money = db.Column(db.Integer, default=0)
-    publisher_info = relationship("PublisherInfo", uselist=False, back_populates="user")
+    balance = db.Column(db.Integer, default=0)
+
+    publisher_info = relationship("PublisherInfo",
+                                  uselist=False,
+                                  back_populates="user")
     following = relationship("Follow",
                              back_populates="subject",
                              foreign_keys="Follow.subject_id")
@@ -77,12 +86,17 @@ class User(UserMixin, db.Model):
 
 class PublisherInfo(db.Model):
     __tablename__ = "publisher_info"
-    id = db.Column(db.Integer, primary_key=True)
-    about = db.Column(db.String(), nullable=True)
+    id = db.Column(db.Integer,
+                   primary_key=True)
+    description = db.Column(db.String)
+    is_registered = db.Column(db.Boolean,
+                              default=False)
 
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-    user = relationship("User", uselist=False, back_populates="publisher_info")
-    active = db.Column(db.Boolean, default=False)
+    user_id = db.Column(db.Integer,
+                        db.ForeignKey('users.id'))
+    user = relationship("User",
+                        uselist=False,
+                        back_populates="publisher_info")
 
     def __repr__(self):
         return "<%s %s>" % (self.__class__.__name__,
@@ -91,8 +105,12 @@ class PublisherInfo(db.Model):
 
 class Follow(db.Model):
     __tablename__ = 'follow'
-    subject_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True)
-    object_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True)
+    subject_id = db.Column(db.Integer,
+                           db.ForeignKey('users.id'),
+                           primary_key=True)
+    object_id = db.Column(db.Integer,
+                          db.ForeignKey('users.id'),
+                          primary_key=True)
     subject = relationship("User",
                            back_populates="following",
                            foreign_keys="Follow.subject_id")
