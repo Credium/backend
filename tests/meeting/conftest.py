@@ -17,7 +17,7 @@ def guest1(db):
 @pytest.fixture
 def publisher1(db):
     user = User(username="publisher1", password="publisher", type="publisher")
-    user.publisher_info = PublisherInfo(about="the first publisher")
+    user.publisher_info = PublisherInfo(description="the first publisher")
     db.session.add(user)
     db.session.commit()
     return user
@@ -29,9 +29,8 @@ def meeting1(db, publisher1):
     meeting = Meeting(publisher=publisher1.publisher_info,
                       title="title1",
                       content="content1",
-                      meeting_time=meeting_time,
-                      participation_number="5",
-                      acceptance_number="10"
+                      start_time=meeting_time,
+                      maximum_people="10"
                       )
     db.session.add(meeting)
     db.session.commit()

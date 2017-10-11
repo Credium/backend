@@ -11,10 +11,10 @@ class TestPublisherModel:
         self.guest = User(username="guest", password="guest")
 
         self.publisher1 = User(username="publisher1", password="publisher", type="publisher")
-        self.publisher1.publisher_info = PublisherInfo(about="the first publisher")
+        self.publisher1.publisher_info = PublisherInfo(description="the first publisher")
 
         self.publisher2 = User(username="publisher2", password="publisher", type="publisher")
-        self.publisher2.publisher_info = PublisherInfo(about="the second publisher")
+        self.publisher2.publisher_info = PublisherInfo(description="the second publisher")
 
         self.follow1 = Follow(subject=self.guest)
         self.follow2 = Follow(subject=self.guest)
@@ -27,7 +27,7 @@ class TestPublisherModel:
 
     def test_create_publisher_info(self):
         assert self.publisher1.is_publisher
-        assert self.publisher1.publisher_info.about == "the first publisher"
+        assert self.publisher1.publisher_info.description == "the first publisher"
 
     def test_guest_following(self):
         assert self.guest.following[0].object.username == "publisher1"
