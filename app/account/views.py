@@ -7,17 +7,6 @@ from .forms import LoginForm, RegisterForm
 from .models import User
 
 
-@account.before_request
-def get_user_token():
-    g.user = None
-    token = request.headers.get("Authorization", None)
-    if token is not None:
-        user = User.query.filter_by(token=token).first()
-        if user is None:
-            return jsonify({"status": False, "error": "token is not valid"}), 401
-        g.user = user
-
-
 @account.route('/login', methods=["POST"])
 def login():
     form = LoginForm()
