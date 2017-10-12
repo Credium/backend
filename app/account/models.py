@@ -47,6 +47,9 @@ class User(UserMixin, db.Model):
                             back_populates="object",
                             foreign_keys="Follow.object_id")
 
+    def __init__(self, *args, **kwargs):
+        super(User, self).__init__(**kwargs)
+
     def verify_password(self, password):
         return check_password_hash(self.password_hash, password)
 

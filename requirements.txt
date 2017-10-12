@@ -12,6 +12,7 @@ itsdangerous==0.24
 Jinja2==2.9.6
 Mako==1.0.7
 MarkupSafe==1.0
+marshmallow==2.13.6
 mccabe==0.6.1
 py==1.4.34
 pycodestyle==2.3.1
