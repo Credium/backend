@@ -21,19 +21,8 @@ class TestAccountView:
         }
         response = client.post(url, data=data)
         assert response.status_code == 200
-        assert response.json["status"] == True
-        assert response.json["user"]["username"] == "guest1"
-
-    def test_login_fail_invalid_form(self, client):
-        url = url_for("account.login")
-        data = {
-            "username": "as",
-            "password": "guest1"
-        }
-        response = client.post(url, data=data)
-        assert response.status_code == 400
-        assert response.json["status"] == False
-        assert response.json["error"] == "invalidated form"
+        assert response.json["username"] == "guest1"
+        assert response.json["full_name"] == "김의사"
 
     def test_login_fail_invalid_user(self, client):
         url = url_for("account.login")
@@ -42,9 +31,9 @@ class TestAccountView:
             "password": "guest1"
         }
         response = client.post(url, data=data)
-        assert response.status_code == 400
-        assert response.json["status"] == False
-        assert response.json["error"] == "invalidated user"
+        assert response.status_code == 401
+        print(response.json)
+        assert response.json["username"] == ["username is not matched any User model's row"]
 
     def test_logout_success(self, client, guest1):
         url = url_for("account.logout")

@@ -3,20 +3,17 @@ from flask import g, jsonify, request
 from app.application import db
 from app.blueprints import account
 
-from .forms import LoginForm, RegisterForm
+from .forms import RegisterForm
+from .schemas import LoginSchema
 from .models import User
 
 
 @account.route('/login', methods=["POST"])
 def login():
-    form = LoginForm()
-    if not form.validate():
-        return jsonify({"status": False, "error": "invalidated form"}), 400
-
-    user = form.auth()
-    if user is None:
-        return jsonify({"status": False, "error": "invalidated user"}), 400
-    return jsonify({"status": True, "user": user.dict()}), 200
+    data, errors = LoginSchema().load(request.form)
+    if errors:
+        return jsonify(errors), 401
+    return jsonify(data["user"].data)
 
 
 @account.route('/logout', methods=["GET"])
