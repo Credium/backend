@@ -12,14 +12,16 @@ app = create_app(os.getenv('FLASK_CONFIG') or 'default')
 manager = Manager(app)
 
 
-@manager.command
-def runserver():
-    app.run()
+@manager.option('-h', '--host', default='0.0.0.0')
+@manager.option('-p', '--port', default='5000')
+def runserver(host, port):
+    app.run(host=host, port=int(port))
 
 
-@manager.command
-def test():
-    pytest.main(['-x', 'tests'])
+@manager.option('-p', '--path', default='')
+def test(path):
+    path = os.path.join(os.getcwd(), "tests", path)
+    pytest.main([path])
 
 
 @manager.command

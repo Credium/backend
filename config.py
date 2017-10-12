@@ -6,6 +6,7 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY') or '6b7eeb35039a99ba30cae739e3fc90ed'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    MEDIA_FILE_PATH = os.path.join(basedir, "app", "media")
 
 
 class DevelopmentConfig(Config):
