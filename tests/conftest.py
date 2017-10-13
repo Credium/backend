@@ -93,11 +93,19 @@ def publisher1(db):
 
 @pytest.fixture
 def meeting1(db, publisher1):
-    meeting_time = datetime.datetime.strptime("2014-01-21 00:00:00", "%Y-%m-%d %H:%M:%S")
+    start_time = datetime.datetime(2012, 3, 3, 10, 10, 10)
+    entry_due_time = datetime.datetime(2012, 3, 4, 10, 10, 10)
+    end_time = datetime.datetime(2012, 3, 5, 10, 10, 10)
     meeting = Meeting(publisher=publisher1.publisher_info,
                       title="title1",
                       content="content1",
-                      start_time=meeting_time,
+                      location="서울시",
+                      entry_fee = "200000",
+                      entry_fee_type = "기타",
+                      time_slots="오전",
+                      entry_due_time=entry_due_time,
+                      start_time=start_time,
+                      end_time=end_time,
                       maximum_people="10"
                       )
     db.session.add(meeting)
