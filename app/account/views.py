@@ -59,4 +59,5 @@ def update():
 
 @account.route('/user-info', methods=["GET"])
 def user_info():
-    return jsonify({"status": True, "user": g.user.dict()}), 200
+    data, errors = UserSchema().dump(g.user)
+    return jsonify(data), 200

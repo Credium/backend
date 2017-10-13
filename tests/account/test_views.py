@@ -136,5 +136,4 @@ class TestAccountView:
         response = client.get(url,
                               headers=self.get_auth_header(guest1.token))
         assert response.status_code == 200
-        assert response.json["status"] == True
-        assert response.json["user"]["username"] == "guest1"
+        assert response.json["username"] == "guest1"
