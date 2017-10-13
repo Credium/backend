@@ -124,7 +124,7 @@ class Follow(db.Model):
     def __repr__(self):
         return "<%s %s->%s>" % (self.__class__.__name__,
                                 self.subject.username,
-                                self.object.user.username)
+                                self.object.username)
 
 
 @login_manager.user_loader

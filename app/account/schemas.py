@@ -19,9 +19,10 @@ class LoginSchema(Schema):
     @validates('password')
     def validate_password(self, value):
         user = getattr(self, "user", None)
-        if user is not None:
-            if not user.verify_password(value):
-                raise ValidationError("password is not validation")
+        if user is None:
+            raise ValidationError("username is not matched any User model's row")
+        if not user.verify_password(value):
+            raise ValidationError("password is not validation")
 
     def _do_load(self, *args, **kwargs):
         result, errors = super(LoginSchema, self)._do_load(*args, **kwargs)
@@ -50,14 +51,12 @@ class UserSchema(Schema):
 
     @validates('profile_photo_path')
     def validate_profile_photo_path(self, image):
-        if isinstance(image, str):
-            if os.path.isfile(image):
-                return
+        if not isinstance(image, str):
+            raise ValidationError("profile_photo_path must be a str")
+        if not os.path.isfile(image):
             raise ValidationError("profile photo path value is not image")
-        raise ValidationError("profile_photo_path must be a str")
 
     def get_type(self, obj):
-        if not isinstance(obj.type, str):
-            return obj.type.value
-        else:
+        if isinstance(obj.type, str):
             return obj.type
+        return obj.type.value
