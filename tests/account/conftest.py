@@ -9,7 +9,7 @@ from app.account.models import User
 @pytest.fixture(autouse=True)
 def guest1(app, db):
     image = Image.new('RGB', (100, 100))
-    save_path = os.path.join(app.config["MEDIA_FILE_PATH"], "image01.png")
+    save_path = os.path.join(app.config["MEDIA_FILE_PATH"], "user_profile", "image01.jpg")
     image.save(save_path)
     user = User(username="guest1",
                 password="guest1",

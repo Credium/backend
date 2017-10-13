@@ -1,4 +1,5 @@
 from flask import url_for
+from PIL import Image
 
 from app.account.models import User, generate_token
 
@@ -56,27 +57,35 @@ class TestAccountView:
 
     def test_register_success(self, client):
         url = url_for("account.register")
-        data = {
-            "username": "guest2",
-            "password": "guest2",
-            "confirm": "guest2"
-        }
-        response = client.post(url, data=data)
+        image = Image.new('RGB', (100, 100))
+        data = dict(username="guest3",
+                    password="guest1",
+                    type="signaler",
+                    profile_photo=image,
+                    job="의사선생님",
+                    phone_number="01099725801",
+                    full_name="김의사"
+                    )
+        response = client.post(url, data=data, content_type='multipart/form-data')
         assert response.status_code == 201
-        assert "token" in response.json["user"]
-        assert len(response.json["user"]["token"]) == 40
+        print(response.json)
+        assert "token" in response.json
+        assert len(response.json["token"]) == 40
 
     def test_register_fail(self, client):
         url = url_for("account.register")
-        data = {
-            "username": "guest2",
-            "password": "guest2",
-            "confirm": "guest3"
-        }
+        image = Image.new('RGB', (100, 100))
+        data = dict(username="guest1",
+                    password="guest1",
+                    type="signaler",
+                    profile_photo=image,
+                    job="의사선생님",
+                    phone_number="01099725801",
+                    full_name="김의사"
+                    )
         response = client.post(url, data=data)
         assert response.status_code == 400
-        assert response.json["status"] == False
-        assert response.json["error"] == "invalidated form"
+        assert response.json["errors"]["username"] == ["username is not unique"]
 
     def test_delete_success(self, client, guest1):
         assert self.get_guest1() is not None

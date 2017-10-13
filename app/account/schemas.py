@@ -11,10 +11,10 @@ class LoginSchema(Schema):
 
     @validates('username')
     def validate_username(self, value):
-       user = User.query.filter_by(username=value).first()
-       if user is None:
-           raise ValidationError("username is not matched any User model's row")
-       setattr(self, "user", user)
+        user = User.query.filter_by(username=value).first()
+        if user is None:
+            raise ValidationError("username is not matched any User model's row")
+        setattr(self, "user", user)
 
     @validates('password')
     def validate_password(self, value):
@@ -42,14 +42,19 @@ class UserSchema(Schema):
     job = fields.String()
     phone_number = fields.String()
 
+    @validates("username")
+    def validate_username(self, value):
+        user = User.query.filter_by(username=value).first()
+        if user is not None:
+            raise ValidationError("username is not unique")
+
     @validates('profile_photo_path')
     def validate_profile_photo_path(self, image):
-        if image is str:
+        if isinstance(image, str):
             if os.path.isfile(image):
-                return image
+                return
             raise ValidationError("profile photo path value is not image")
         raise ValidationError("profile_photo_path must be a str")
-
 
     def get_type(self, obj):
         if not isinstance(obj.type, str):

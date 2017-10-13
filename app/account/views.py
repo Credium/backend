@@ -2,10 +2,10 @@ from flask import g, jsonify, request
 
 from app.application import db
 from app.blueprints import account
+from app.helpers import save_image
 
-from .forms import RegisterForm
-from .schemas import LoginSchema
 from .models import User
+from .schemas import LoginSchema, UserSchema
 
 
 @account.route('/login', methods=["POST"])
@@ -25,16 +25,20 @@ def logout():
 
 @account.route('/register', methods=["POST"])
 def register():
-    form = RegisterForm(request.form)
-    if not form.validate():
-        return jsonify({"status": False, "error": "invalidated form"}), 400
-
-    user = User(username=form.username.data,
-                password=form.password.data)
+    username = request.form.get("username", "")
+    image = request.files.get("profile_photo", None)
+    photo_path = save_image("user_profile", username, image)
+    request_data = request.form.to_dict()
+    request_data["profile_photo_path"] = photo_path
+    data, errors = UserSchema().load(request_data)
+    if errors:
+        data = {"errors": errors}
+        return jsonify(data), 400
+    user = User(**data)
     db.session.add(user)
     db.session.commit()
-
-    return jsonify({"status": True, "user": user.dict()}), 201
+    data, errors = UserSchema(many=False).dump(user)
+    return jsonify(data), 201
 
 
 @account.route('/delete', methods=["DELETE"])

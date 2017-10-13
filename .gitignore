@@ -200,5 +200,6 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+*.jpg
 
 # End of https://www.gitignore.io/api/macos,python,pycharm,jupyternotebook
