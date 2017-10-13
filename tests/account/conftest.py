@@ -28,7 +28,7 @@ def guest1(app, db):
 @pytest.fixture(autouse=True)
 def dict_guest2(app, db):
     image = Image.new('RGB', (100, 100))
-    save_path = os.path.join(app.config["MEDIA_FILE_PATH"], "image02.png")
+    save_path = os.path.join(app.config["MEDIA_FILE_PATH"], "user_profile", "image02.jpg")
     image.save(save_path)
     dict_user = dict(username="guest2",
                      password="guest2",
@@ -38,4 +38,5 @@ def dict_guest2(app, db):
                      phone_number="01099725801",
                      full_name="김의사"
                      )
-    return dict_user
+    yield dict_user
+    os.remove(save_path)
