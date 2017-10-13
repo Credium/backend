@@ -34,7 +34,7 @@ class TestAccountView:
         response = client.post(url, data=data)
         assert response.status_code == 401
         print(response.json)
-        assert response.json["username"] == ["username is not matched any User model's row"]
+        assert response.json["error"] == "username is not matched any User model's row"
 
     def test_logout_success(self, client, guest1):
         url = url_for("account.logout")

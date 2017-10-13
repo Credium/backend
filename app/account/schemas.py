@@ -11,25 +11,34 @@ class LoginSchema(Schema):
 
     @validates('username')
     def validate_username(self, value):
-        user = User.query.filter_by(username=value).first()
-        if user is None:
-            raise ValidationError("username is not matched any User model's row")
-        setattr(self, "user", user)
+        pass
 
     @validates('password')
     def validate_password(self, value):
-        user = getattr(self, "user", None)
-        if user is None:
-            raise ValidationError("username is not matched any User model's row")
-        if not user.verify_password(value):
-            raise ValidationError("password is not validation")
+        pass
 
     def _do_load(self, *args, **kwargs):
         result, errors = super(LoginSchema, self)._do_load(*args, **kwargs)
-        user = getattr(self, "user", None)
+        data, _ = args
+
+        user, error_msg = self.get_valid_user(data["username"], data["password"])
+        if error_msg:
+            errors["error"] = error_msg
         if user is not None:
             result["user"] = UserSchema().dump(user)
+
         return result, errors
+
+    def get_valid_user(self, username, password):
+        error_msg = ""
+        user = User.query.filter_by(username=username).first()
+        if user is None:
+            error_msg = "username is not matched any User model's row"
+            return None, error_msg
+        if not user.verify_password(password):
+            error_msg = "password is not validation"
+            return None, error_msg
+        return user, error_msg
 
 
 class UserSchema(Schema):
