@@ -20,7 +20,6 @@ class Meeting(db.Model):
     entry_fee = db.Column(db.Integer)
     entry_fee_type = db.Column(db.String(16))
 
-    time_slots = db.Column(db.String(32))
     entry_due_time = db.Column(db.DateTime)
     start_time = db.Column(db.DateTime)
     end_time = db.Column(db.DateTime)
