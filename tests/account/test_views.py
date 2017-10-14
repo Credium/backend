@@ -21,19 +21,8 @@ class TestAccountView:
         }
         response = client.post(url, data=data)
         assert response.status_code == 200
-        assert response.json["status"] == True
-        assert response.json["user"]["username"] == "guest1"
-
-    def test_login_fail_invalid_form(self, client):
-        url = url_for("account.login")
-        data = {
-            "username": "as",
-            "password": "guest1"
-        }
-        response = client.post(url, data=data)
-        assert response.status_code == 400
-        assert response.json["status"] == False
-        assert response.json["error"] == "invalidated form"
+        assert response.json["username"] == "guest1"
+        assert response.json["full_name"] == "김의사"
 
     def test_login_fail_invalid_user(self, client):
         url = url_for("account.login")
@@ -42,9 +31,20 @@ class TestAccountView:
             "password": "guest1"
         }
         response = client.post(url, data=data)
-        assert response.status_code == 400
-        assert response.json["status"] == False
-        assert response.json["error"] == "invalidated user"
+        assert response.status_code == 401
+        print(response.json)
+        assert response.json["error"] == "username is not matched any User model's row"
+
+    def test_login_fail_invalid_password(self, client):
+        url = url_for("account.login")
+        data = {
+            "username": "guest1",
+            "password": "wrong"
+        }
+        response = client.post(url, data=data)
+        assert response.status_code == 401
+        print(response.json)
+        assert response.json["error"] == "password is not validation"
 
     def test_logout_success(self, client, guest1):
         url = url_for("account.logout")
@@ -55,7 +55,7 @@ class TestAccountView:
         assert response.status_code == 200
         assert token != guest1.token
 
-    def test_logout_fail(self, client, guest1):
+    def test_logout_fail(self, client):
         url = url_for("account.logout")
         invalid_token = generate_token()
         header = self.get_auth_header(invalid_token)
@@ -65,29 +65,22 @@ class TestAccountView:
         assert response.json["status"] == False
         assert response.json["error"] == "token is not valid"
 
-    def test_register_success(self, client):
+    def test_register_success(self, client, dict_guest2):
         url = url_for("account.register")
-        data = {
-            "username": "guest2",
-            "password": "guest2",
-            "confirm": "guest2"
-        }
-        response = client.post(url, data=data)
+        data = dict_guest2
+        response = client.post(url, data=data, content_type='multipart/form-data')
         assert response.status_code == 201
-        assert "token" in response.json["user"]
-        assert len(response.json["user"]["token"]) == 40
+        print(response.json)
+        assert "token" in response.json
+        assert len(response.json["token"]) == 40
 
-    def test_register_fail(self, client):
+    def test_register_fail_duplicated_username(self, client, dict_guest2):
         url = url_for("account.register")
-        data = {
-            "username": "guest2",
-            "password": "guest2",
-            "confirm": "guest3"
-        }
+        data = dict_guest2
+        data["username"] = "guest1"
         response = client.post(url, data=data)
         assert response.status_code == 400
-        assert response.json["status"] == False
-        assert response.json["error"] == "invalidated form"
+        assert response.json["errors"]["username"] == ["username is not unique"]
 
     def test_delete_success(self, client, guest1):
         assert self.get_guest1() is not None
@@ -138,5 +131,4 @@ class TestAccountView:
         response = client.get(url,
                               headers=self.get_auth_header(guest1.token))
         assert response.status_code == 200
-        assert response.json["status"] == True
-        assert response.json["user"]["username"] == "guest1"
+        assert response.json["username"] == "guest1"

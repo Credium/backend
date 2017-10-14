@@ -1,10 +1,11 @@
-from flask import flash, redirect, url_for
+from flask import flash, g, jsonify, redirect, request, url_for
 from flask_admin import AdminIndexView as _AdminIndexView
 from flask_admin import expose
 from flask_admin.contrib.sqla import ModelView as _ModelView
 from flask_login import current_user, login_required, login_user, logout_user
 
 from app.account.forms import LoginForm
+from app.account.models import User
 
 
 class AdminIndexView(_AdminIndexView):
@@ -44,3 +45,13 @@ class ModelView(_ModelView):
     def is_accessible(self):
         return current_user.is_authenticated \
                and current_user.is_superuser
+
+
+def get_user_token():
+    g.user = None
+    token = request.headers.get("Authorization", None)
+    if token is not None:
+        user = User.query.filter_by(token=token).first()
+        if user is None:
+            return jsonify({"status": False, "error": "token is not valid"}), 401
+        g.user = user

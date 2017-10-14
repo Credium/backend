@@ -19,8 +19,10 @@ def create_app(config_name):
     db.init_app(app)
     login_manager.init_app(app)
 
-    from .views import AdminIndexView
+    from .views import AdminIndexView, get_user_token
     admin.init_app(app, index_view=AdminIndexView())
+
+    app.before_request(get_user_token)
 
     from .blueprints import all_blueprints
     for bp in all_blueprints:

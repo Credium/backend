@@ -2,32 +2,18 @@ from flask import g, jsonify, request
 
 from app.application import db
 from app.blueprints import account
+from app.helpers import save_image
 
-from .forms import LoginForm, RegisterForm
 from .models import User
-
-
-@account.before_request
-def get_user_token():
-    g.user = None
-    token = request.headers.get("Authorization", None)
-    if token is not None:
-        user = User.query.filter_by(token=token).first()
-        if user is None:
-            return jsonify({"status": False, "error": "token is not valid"}), 401
-        g.user = user
+from .schemas import LoginSchema, UserSchema
 
 
 @account.route('/login', methods=["POST"])
 def login():
-    form = LoginForm()
-    if not form.validate():
-        return jsonify({"status": False, "error": "invalidated form"}), 400
-
-    user = form.auth()
-    if user is None:
-        return jsonify({"status": False, "error": "invalidated user"}), 400
-    return jsonify({"status": True, "user": user.dict()}), 200
+    data, errors = LoginSchema().load(request.form)
+    if errors:
+        return jsonify(errors), 401
+    return jsonify(data["user"].data)
 
 
 @account.route('/logout', methods=["GET"])
@@ -39,16 +25,20 @@ def logout():
 
 @account.route('/register', methods=["POST"])
 def register():
-    form = RegisterForm(request.form)
-    if not form.validate():
-        return jsonify({"status": False, "error": "invalidated form"}), 400
-
-    user = User(username=form.username.data,
-                password=form.password.data)
+    username = request.form.get("username", "")
+    image = request.files.get("profile_photo", None)
+    photo_path = save_image("user_profile", username, image)
+    request_data = request.form.to_dict()
+    request_data["profile_photo_path"] = photo_path
+    data, errors = UserSchema().load(request_data)
+    if errors:
+        data = {"errors": errors}
+        return jsonify(data), 400
+    user = User(**data)
     db.session.add(user)
     db.session.commit()
-
-    return jsonify({"status": True, "user": user.dict()}), 201
+    data, errors = UserSchema(many=False).dump(user)
+    return jsonify(data), 201
 
 
 @account.route('/delete', methods=["DELETE"])
@@ -69,4 +59,5 @@ def update():
 
 @account.route('/user-info', methods=["GET"])
 def user_info():
-    return jsonify({"status": True, "user": g.user.dict()}), 200
+    data, errors = UserSchema().dump(g.user)
+    return jsonify(data), 200

@@ -42,10 +42,15 @@ class User(UserMixin, db.Model):
                                   back_populates="user")
     following = relationship("Follow",
                              back_populates="subject",
-                             foreign_keys="Follow.subject_id")
+                             foreign_keys="Follow.subject_id",
+                             lazy="dynamic")
     follower = relationship("Follow",
                             back_populates="object",
-                            foreign_keys="Follow.object_id")
+                            foreign_keys="Follow.object_id",
+                            lazy="dynamic")
+
+    def __init__(self, *args, **kwargs):
+        super(User, self).__init__(**kwargs)
 
     def verify_password(self, password):
         return check_password_hash(self.password_hash, password)
@@ -121,7 +126,7 @@ class Follow(db.Model):
     def __repr__(self):
         return "<%s %s->%s>" % (self.__class__.__name__,
                                 self.subject.username,
-                                self.object.user.username)
+                                self.object.username)
 
 
 @login_manager.user_loader

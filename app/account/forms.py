@@ -18,11 +18,3 @@ class LoginForm(FlaskForm):
         if not user.verify_password(password):
             return None
         return user
-
-
-class RegisterForm(FlaskForm):
-    username = StringField('Username', validators=[Length(4, 64)])
-    password = PasswordField('Password', validators=[
-        DataRequired(), EqualTo("confirm")
-    ])
-    confirm = PasswordField('Password confirm')
