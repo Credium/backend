@@ -8,7 +8,7 @@ from .schemas import MeetingDemandSchema
 
 
 @demand.route('/meeting/create', methods=["POST"])
-def meeting_create():
+def meeting_demand_create():
     result, errors = MeetingDemandSchema().load(request.form)
     if errors:
         data = {"errors": errors}

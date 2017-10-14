@@ -1,4 +1,4 @@
-from marshmallow import Schema, ValidationError, fields, validates
+from marshmallow import Schema, fields
 
 from app.account.schemas import UserSchema
 from app.helpers import PublisherIDSchemaMixin
