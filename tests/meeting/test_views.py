@@ -29,4 +29,3 @@ class TestMeetingView:
         created_meeting = Meeting.query.filter_by(publisher=self.pub1_info).first()
         assert created_meeting.id == 1
         assert self.pub1_info.make_meetings[0] == created_meeting
-        assert False
