@@ -47,3 +47,17 @@ class TestMeetingDemandView:
                                 data=data2,
                                 headers=self.get_auth_header(self.guest1.token))
         assert response2.status_code == 400
+
+    def test_receive_meetings_check(self, client):
+        self.test_success_meeting_demand_create(client)
+        url = url_for("demand.receive_meeting")
+        response = client.get(url, headers=self.get_auth_header(self.publisher1.token))
+        assert response.status_code == 200
+        print(response.json)
+        assert response.json[0]["id"] == 1
+
+    def test_denied_meetings_request(self, client):
+        url = url_for("demand.receive_meeting")
+        response = client.get(url, headers=self.get_auth_header(self.guest1.token))
+        assert response.status_code == 401
+

@@ -5,6 +5,7 @@ from app.blueprints import demand
 
 from .models import MeetingDemand
 from .schemas import MeetingDemandSchema
+from app.account.permissions import publisher_required
 
 
 @demand.route('/meeting/create', methods=["POST"])
@@ -18,3 +19,11 @@ def meeting_create():
     db.session.commit()
     schema = MeetingDemandSchema().dump(meeting_demand)
     return jsonify(schema.data), 201
+
+
+@demand.route('/received/meeting', methods=["GET"])
+@publisher_required
+def receive_meeting():
+    demanded_meetings = MeetingDemand.query.filter_by(publisher=g.user.publisher_info)
+    schema = MeetingDemandSchema(exclude=("publisher", ), many=True).dump(demanded_meetings)
+    return jsonify(schema.data), 200
