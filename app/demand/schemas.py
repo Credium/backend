@@ -10,3 +10,4 @@ class MeetingDemandSchema(Schema, PublisherIDSchemaMixin):
     publisher = fields.Nested(UserSchema, dump_only=True)
     title = fields.Str(required=True)
     introduce = fields.Str(required=True)
+    is_enabled = fields.Boolean(dump_only=True)
