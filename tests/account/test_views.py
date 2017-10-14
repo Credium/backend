@@ -1,5 +1,4 @@
 from flask import url_for
-from PIL import Image
 
 from app.account.models import User, generate_token
 
@@ -36,6 +35,17 @@ class TestAccountView:
         print(response.json)
         assert response.json["error"] == "username is not matched any User model's row"
 
+    def test_login_fail_invalid_password(self, client):
+        url = url_for("account.login")
+        data = {
+            "username": "guest1",
+            "password": "wrong"
+        }
+        response = client.post(url, data=data)
+        assert response.status_code == 401
+        print(response.json)
+        assert response.json["error"] == "password is not validation"
+
     def test_logout_success(self, client, guest1):
         url = url_for("account.logout")
         token = guest1.token
@@ -45,7 +55,7 @@ class TestAccountView:
         assert response.status_code == 200
         assert token != guest1.token
 
-    def test_logout_fail(self, client, guest1):
+    def test_logout_fail(self, client):
         url = url_for("account.logout")
         invalid_token = generate_token()
         header = self.get_auth_header(invalid_token)
@@ -55,34 +65,19 @@ class TestAccountView:
         assert response.json["status"] == False
         assert response.json["error"] == "token is not valid"
 
-    def test_register_success(self, client):
+    def test_register_success(self, client, dict_guest2):
         url = url_for("account.register")
-        image = Image.new('RGB', (100, 100))
-        data = dict(username="guest3",
-                    password="guest1",
-                    type="signaler",
-                    profile_photo=image,
-                    job="의사선생님",
-                    phone_number="01099725801",
-                    full_name="김의사"
-                    )
+        data = dict_guest2
         response = client.post(url, data=data, content_type='multipart/form-data')
         assert response.status_code == 201
         print(response.json)
         assert "token" in response.json
         assert len(response.json["token"]) == 40
 
-    def test_register_fail(self, client):
+    def test_register_fail_duplicated_username(self, client, dict_guest2):
         url = url_for("account.register")
-        image = Image.new('RGB', (100, 100))
-        data = dict(username="guest1",
-                    password="guest1",
-                    type="signaler",
-                    profile_photo=image,
-                    job="의사선생님",
-                    phone_number="01099725801",
-                    full_name="김의사"
-                    )
+        data = dict_guest2
+        data["username"] = "guest1"
         response = client.post(url, data=data)
         assert response.status_code == 400
         assert response.json["errors"]["username"] == ["username is not unique"]
