@@ -35,7 +35,7 @@ class MeetingDemand(db.Model):
     title = db.Column(db.String)
     introduce = db.Column(db.String)
     is_enabled = db.Column(db.Boolean,
-                           default=False)
+                           default=True)
 
     def __repr__(self):
         return "<%s %s>" % (self.__class__.__name__,

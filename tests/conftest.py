@@ -92,6 +92,25 @@ def publisher1(db):
 
 
 @pytest.fixture
+def dict_meeting1():
+    entry_due_time = datetime.datetime(2012, 3, 3, 10, 10, 10)
+    start_time = datetime.datetime(2012, 3, 4, 10, 10, 10)
+    end_time = datetime.datetime(2012, 3, 5, 10, 10, 10)
+    dict_meeting = dict(
+        title="바둑 가르쳐 드립니다",
+        content="저 바둑 고수입니다. 저한테서 배우고 싶으신 분들 10명만 오세요.",
+        location="서울시",
+        entry_fee=200000,
+        entry_fee_type="기타",
+        entry_due_time=entry_due_time,
+        start_time=start_time,
+        end_time=end_time,
+        maximum_people=10
+    )
+    return dict_meeting
+
+
+@pytest.fixture
 def meeting1(db, publisher1):
     start_time = datetime.datetime(2012, 3, 3, 10, 10, 10)
     entry_due_time = datetime.datetime(2012, 3, 4, 10, 10, 10)
@@ -100,13 +119,12 @@ def meeting1(db, publisher1):
                       title="title1",
                       content="content1",
                       location="서울시",
-                      entry_fee = "200000",
-                      entry_fee_type = "기타",
-                      time_slots="오전",
+                      entry_fee=200000,
+                      entry_fee_type="기타",
                       entry_due_time=entry_due_time,
                       start_time=start_time,
                       end_time=end_time,
-                      maximum_people="10"
+                      maximum_people=10
                       )
     db.session.add(meeting)
     db.session.commit()
