@@ -42,10 +42,12 @@ class User(UserMixin, db.Model):
                                   back_populates="user")
     following = relationship("Follow",
                              back_populates="subject",
-                             foreign_keys="Follow.subject_id")
+                             foreign_keys="Follow.subject_id",
+                             lazy="dynamic")
     follower = relationship("Follow",
                             back_populates="object",
-                            foreign_keys="Follow.object_id")
+                            foreign_keys="Follow.object_id",
+                            lazy="dynamic")
 
     def __init__(self, *args, **kwargs):
         super(User, self).__init__(**kwargs)
