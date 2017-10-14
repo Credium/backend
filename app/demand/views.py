@@ -8,7 +8,7 @@ from .schemas import MeetingDemandSchema
 from app.account.permissions import publisher_required
 
 
-@demand.route('/meeting/create', methods=["POST"])
+@demand.route('/meeting', methods=["POST"])
 def meeting_demand_create():
     result, errors = MeetingDemandSchema().load(request.form)
     if errors:
@@ -21,7 +21,7 @@ def meeting_demand_create():
     return jsonify(schema.data), 201
 
 
-@demand.route('/received/meeting', methods=["GET"])
+@demand.route('/meeting', methods=["GET"])
 @publisher_required
 def receive_meeting():
     demanded_meetings = MeetingDemand.query.filter_by(publisher=g.user.publisher_info)
