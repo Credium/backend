@@ -29,3 +29,21 @@ class TestMeetingView:
         created_meeting = Meeting.query.filter_by(publisher=self.pub1_info).first()
         assert created_meeting.id == 1
         assert self.pub1_info.make_meetings[0] == created_meeting
+
+    def test_get_publisher_meeting_success(self, client, dict_meeting1):
+        self.test_meeting_create_success(client, dict_meeting1)
+        url = url_for("meeting.get_publisher_meetings",
+                      publisher_id=self.pub1_info.id)
+        response = client.get(url)
+        assert response.status_code == 200
+        assert response.json[0]["id"] == 1
+        assert response.json[0]["title"] == "바둑 가르쳐 드립니다"
+
+    def test_get_all_meeting_success(self, client, dict_meeting1):
+        self.test_meeting_create_success(client, dict_meeting1)
+        url = url_for("meeting.get_all_meetings")
+        response = client.get(url)
+        assert response.status_code == 200
+        assert len(response.json) == 1
+        assert response.json[0]["id"] == 1
+        assert response.json[0]["title"] == "바둑 가르쳐 드립니다"
