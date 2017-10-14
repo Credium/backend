@@ -5,13 +5,13 @@ from app.application import db
 
 from .models import Meeting, Participate
 from .schemas import MeetingSchema
+from app.account.permissions import publisher_required
+from app.account.models import PublisherInfo
 
 
 @meeting.route('/', methods=["POST"])
+@publisher_required
 def meeting_create():
-    if g.user.type != "publisher":
-        data = {"error": "user is not publisher"}
-        return jsonify(data), 403
     result, errors = MeetingSchema().load(request.form)
     if errors:
         data = {"errors": errors}
@@ -23,6 +23,16 @@ def meeting_create():
     return jsonify(schema.data), 201
 
 
+@meeting.route("/", methods=["GET"])
+def get_all_meetings():
+    meetings = Meeting.query.all()
+    schema = MeetingSchema(many=True).dump(meetings)
+    return jsonify(schema.data), 200
+
+
 @meeting.route("/<int:publisher_id>", methods=["GET"])
-def get_publisher_meetings():
-    pass
+def get_publisher_meetings(publisher_id):
+    publisher = PublisherInfo.query.filter_by(id=publisher_id).first()
+    schema = MeetingSchema(exclude=("publisher", ), many=True).dump(publisher.make_meetings)
+    return jsonify(schema.data), 200
+
