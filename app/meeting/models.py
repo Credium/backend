@@ -1,7 +1,8 @@
 import datetime
 
-from sqlalchemy.orm import relationship
 from sqlalchemy.ext.associationproxy import association_proxy
+from sqlalchemy.orm import relationship
+
 from app.account.models import User
 from app.application import db
 

@@ -1,10 +1,10 @@
 from flask import g, jsonify, request
+from sqlalchemy import text
 
 from app.account.models import PublisherInfo, User
 from app.account.permissions import login_required, publisher_required
 from app.application import db
 from app.blueprints import meeting
-from sqlalchemy import text
 
 from .models import Meeting, Participate
 from .schemas import MeetingSchema, ParticipateSchema
@@ -61,5 +61,4 @@ def participate_create():
 def participate_list():
     meetings = g.user.meetings
     schema, errors = MeetingSchema(many=True).dump(meetings)
-
     return jsonify(schema)

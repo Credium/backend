@@ -21,6 +21,7 @@ class MeetingSchema(Schema, PublisherIDSchemaMixin):
     start_time = fields.DateTime()
     end_time = fields.DateTime()
     created_time = fields.DateTime(dump_only=True)
+    members = fields.Nested(UserSchema, many=True, dump_only=True)
 
 
 def load_signaler_id():
