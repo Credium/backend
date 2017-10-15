@@ -1,9 +1,9 @@
 import os
 
 from marshmallow import Schema, ValidationError, fields, validates
-
+from flask import g
 from .models import User
-
+from app.helpers import PublisherIDSchemaMixin
 
 class LoginSchema(Schema):
     username = fields.String()
@@ -78,3 +78,24 @@ class UserSchema(Schema):
         if isinstance(obj.type, str):
             return obj.type
         return obj.type.value
+
+def load_following_id():
+    return g.user.id
+
+class FollowSchema(Schema):
+    following_id = fields.Integer(load_only=True, missing=load_following_id)
+    follower_id = fields.Method(load_only=True, deserialize="load_follower_id")
+    following = fields.Nested(UserSchema, dump_only=True)
+    follower = fields.Nested(UserSchema, dump_only=True)
+
+    @validates("follower_id")
+    def validate_follower_id(self, value):
+        if value is None:
+            raise ValidationError("publisher id is not exist or publisher")
+
+    def load_follower_id(self, value):
+        publisher = User.query.filter_by(id=value).first()
+        if publisher is not None and publisher.is_publisher:
+            return publisher.publisher_info.id
+        else:
+            return None

@@ -4,10 +4,10 @@ from app.application import db
 from app.blueprints import account
 from app.helpers import save_image
 
-from .models import User
-from .schemas import LoginSchema, UserSchema
+from .models import User, Follow
+from .schemas import LoginSchema, UserSchema, FollowSchema
 from  sqlalchemy.sql.expression import func
-
+from .permissions import login_required
 
 @account.route('/login', methods=["POST"])
 def login():
@@ -71,3 +71,16 @@ def recommend_publisher():
                      .order_by(func.random()).all()[0:5]
     schema = UserSchema().dump(publishers, many=True)
     return jsonify(schema.data)
+
+
+@account.route("/following", methods=["POST"])
+@login_required
+def following_create():
+    result, data = FollowSchema().load(request.form)
+    follow = Follow(**result)
+    db.session.add(follow)
+    db.session.commit()
+    data = {"following": follow.following,
+            "follower": follow.follower.user}
+    schema = FollowSchema().dump(data)
+    return jsonify(schema.data), 201
