@@ -26,7 +26,8 @@ class Meeting(db.Model):
     created_time = db.Column(db.DateTime,
                              default=datetime.datetime.utcnow)
     participate_users = db.relationship("Participate",
-                                        back_populates="meeting")
+                                        back_populates="meeting",
+                                        lazy="dynamic")
 
     def __repr__(self):
         return "<%s %s>" % (self.__class__.__name__,
@@ -42,7 +43,7 @@ class Participate(db.Model):
     meeting_id = db.Column(db.Integer,
                            db.ForeignKey("meetings.id"))
     signaler = relationship("User",
-                            backref="participate_meetings")
+                            backref="participate_meetings",)
     meeting = relationship("Meeting",
                            back_populates="participate_users")
     short_opinion = db.Column(db.String(100))

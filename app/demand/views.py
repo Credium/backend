@@ -1,11 +1,11 @@
 from flask import g, jsonify, request
 
+from app.account.permissions import publisher_required
 from app.application import db
 from app.blueprints import demand
 
 from .models import MeetingDemand
 from .schemas import MeetingDemandSchema
-from app.account.permissions import publisher_required
 
 
 @demand.route('/meeting', methods=["POST"])
