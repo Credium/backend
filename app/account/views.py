@@ -6,6 +6,7 @@ from app.helpers import save_image
 
 from .models import User
 from .schemas import LoginSchema, UserSchema
+from  sqlalchemy.sql.expression import func
 
 
 @account.route('/login', methods=["POST"])
@@ -61,3 +62,12 @@ def update():
 def user_info():
     data, errors = UserSchema().dump(g.user)
     return jsonify(data), 200
+
+
+@account.route("/recommend_publisher", methods=["GET"])
+def recommend_publisher():
+    # todo 지금은 랜덤으로 조회하지만 나중에는 적절한 근거에 입각하여 추천
+    publishers = User.query.filter_by(type="publisher")\
+                     .order_by(func.random()).all()[0:5]
+    schema = UserSchema().dump(publishers, many=True)
+    return jsonify(schema.data)
