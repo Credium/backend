@@ -1,4 +1,5 @@
-from flask import flash, g, jsonify, redirect, request, url_for
+import os
+from flask import flash, g, jsonify, redirect, request, url_for, send_from_directory
 from flask_admin import AdminIndexView as _AdminIndexView
 from flask_admin import expose
 from flask_admin.contrib.sqla import ModelView as _ModelView
@@ -45,6 +46,21 @@ class ModelView(_ModelView):
     def is_accessible(self):
         return current_user.is_authenticated \
                and current_user.is_superuser
+
+
+def get_image(file_path):
+    basedir = os.path.abspath(os.path.dirname(__file__))
+    mediadir = os.path.join(basedir, "media")
+    full_path = os.path.join(mediadir, file_path)
+
+    if not os.path.exists(full_path):
+        return jsonify({"error": "file doesn't exist"}), 404
+
+    filedir, filename = os.path.split(full_path)
+    return send_from_directory(filedir,
+                               filename,
+                               as_attachment=True,
+                               mimetype="image/jpg")
 
 
 def get_user_token():

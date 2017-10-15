@@ -10,3 +10,12 @@ def publisher_required(f):
             return f(*args, **kwargs)
         return jsonify("this user is not publisher"), 401
     return decorated_function
+
+
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if g.user is not None:
+            return f(*args, **kwargs)
+        return jsonify("this action is required login")
+    return decorated_function

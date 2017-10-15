@@ -1,7 +1,9 @@
 import datetime
 
+from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.orm import relationship
 
+from app.account.models import User
 from app.application import db
 
 
@@ -26,7 +28,8 @@ class Meeting(db.Model):
     created_time = db.Column(db.DateTime,
                              default=datetime.datetime.utcnow)
     participate_users = db.relationship("Participate",
-                                        back_populates="meeting")
+                                        back_populates="meeting",
+                                        lazy="dynamic")
 
     def __repr__(self):
         return "<%s %s>" % (self.__class__.__name__,
@@ -51,3 +54,7 @@ class Participate(db.Model):
         return "<%s %s->%s>" % (self.__class__.__name__,
                                 self.signaler.username,
                                 self.meeting.title)
+
+
+Meeting.members = association_proxy("participate_users", "signaler")
+User.meetings = association_proxy("participate_meetings", "meeting")

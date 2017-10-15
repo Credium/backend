@@ -19,10 +19,13 @@ def create_app(config_name):
     db.init_app(app)
     login_manager.init_app(app)
 
-    from .views import AdminIndexView, get_user_token
+    from .views import AdminIndexView, get_user_token, get_image
     admin.init_app(app, index_view=AdminIndexView())
 
     app.before_request(get_user_token)
+    app.add_url_rule("/media/<path:file_path>",
+                     view_func=get_image,
+                     methods=["GET"])
 
     from .blueprints import all_blueprints
     for bp in all_blueprints:
