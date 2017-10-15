@@ -1,7 +1,8 @@
 import datetime
 
 from sqlalchemy.orm import relationship
-
+from sqlalchemy.ext.associationproxy import association_proxy
+from app.account.models import User
 from app.application import db
 
 
@@ -43,7 +44,7 @@ class Participate(db.Model):
     meeting_id = db.Column(db.Integer,
                            db.ForeignKey("meetings.id"))
     signaler = relationship("User",
-                            backref="participate_meetings",)
+                            backref="participate_meetings")
     meeting = relationship("Meeting",
                            back_populates="participate_users")
     short_opinion = db.Column(db.String(100))
@@ -52,3 +53,7 @@ class Participate(db.Model):
         return "<%s %s->%s>" % (self.__class__.__name__,
                                 self.signaler.username,
                                 self.meeting.title)
+
+
+Meeting.members = association_proxy("participate_users", "signaler")
+User.meetings = association_proxy("participate_meetings", "meeting")

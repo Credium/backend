@@ -11,7 +11,6 @@ class TestParticipateView:
         self.publisher1 = publisher1
         self.meeting1 = meeting1
 
-
     def get_auth_header(self, token):
         return {
             "Authorization": token
@@ -24,13 +23,13 @@ class TestParticipateView:
             "short_opinion": "ㅎㅇㅎㅇ"
         }
         response1 = client.post(url,
-                               data=data,
-                               headers=self.get_auth_header(self.guest1.token))
+                                data=data,
+                                headers=self.get_auth_header(self.guest1.token))
         assert response1.status_code == 201
 
         response2 = client.post(url,
-                               data=data,
-                               headers=self.get_auth_header(self.guest1.token))
+                                data=data,
+                                headers=self.get_auth_header(self.guest1.token))
         assert response2.status_code == 400
 
     def test_participate_meeting(self, client):

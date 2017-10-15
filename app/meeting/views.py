@@ -59,9 +59,7 @@ def participate_create():
 @meeting.route("/participate", methods=["GET"])
 @login_required
 def participate_list():
-    meetings = db.session.query(Meeting).\
-        from_statement(text("SELECT *, participate.signaler_id FROM meetings "
-                            "JOIN participate ON participate.meeting_id==meetings.id "
-                            "WHERE signaler_id=:signaler_id")).params(signaler_id=g.user.id).all()
+    meetings = g.user.meetings
     schema, errors = MeetingSchema(many=True).dump(meetings)
+
     return jsonify(schema)
