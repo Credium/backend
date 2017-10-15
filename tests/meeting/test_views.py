@@ -33,7 +33,7 @@ class TestMeetingView:
     def test_get_publisher_meeting_success(self, client, dict_meeting1):
         self.test_meeting_create_success(client, dict_meeting1)
         url = url_for("meeting.get_publisher_meetings",
-                      publisher_id=self.pub1_info.id)
+                      publisher_id=self.publisher1.id)
         response = client.get(url)
         assert response.status_code == 200
         assert response.json[0]["id"] == 1

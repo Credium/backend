@@ -32,7 +32,10 @@ def get_all_meetings():
 
 @meeting.route("/<int:publisher_id>", methods=["GET"])
 def get_publisher_meetings(publisher_id):
-    publisher = PublisherInfo.query.filter_by(id=publisher_id).first()
+    schema, errors = MeetingSchema(only=("publisher_id", )).load({"publisher_id":publisher_id})
+    if errors:
+        data = {"errors": errors}
+        return jsonify(data), 400
+    publisher = PublisherInfo.query.filter_by(user_id=publisher_id).first()
     schema = MeetingSchema(exclude=("publisher", ), many=True).dump(publisher.make_meetings)
     return jsonify(schema.data), 200
-
