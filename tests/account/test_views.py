@@ -203,3 +203,15 @@ class TestAccountView:
         url = url_for("account.recommend_publisher")
         response1 = client.get(url)
         assert response1.status_code == 200
+
+    def test_following_create(self, client):
+        url = url_for("account.following_create")
+        data = {
+            "follower_id": self.publisher1.id
+        }
+        response = client.post(url,
+                               data=data,
+                               headers=self.get_auth_header(self.guest1.token))
+        assert response.status_code == 201
+        assert response.json["follower"]["username"] == "publisher1"
+        assert response.json["following"]["username"] == "guest1"
