@@ -1,9 +1,10 @@
 from flask import g, jsonify, request
 
-from app.account.models import PublisherInfo
+from app.account.models import PublisherInfo, User
 from app.account.permissions import login_required, publisher_required
 from app.application import db
 from app.blueprints import meeting
+from sqlalchemy import text
 
 from .models import Meeting, Participate
 from .schemas import MeetingSchema, ParticipateSchema
@@ -53,3 +54,14 @@ def participate_create():
     db.session.commit()
     schema = ParticipateSchema().dump(participate)
     return jsonify(schema.data), 201
+
+
+@meeting.route("/participate", methods=["GET"])
+@login_required
+def participate_list():
+    meetings = db.session.query(Meeting).\
+        from_statement(text("SELECT *, participate.signaler_id FROM meetings "
+                            "JOIN participate ON participate.meeting_id==meetings.id "
+                            "WHERE signaler_id=:signaler_id")).params(signaler_id=g.user.id).all()
+    schema, errors = MeetingSchema(many=True).dump(meetings)
+    return jsonify(schema)

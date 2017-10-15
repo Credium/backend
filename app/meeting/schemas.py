@@ -38,7 +38,6 @@ class ParticipateSchema(Schema):
     @validates("meeting_id")
     def validate_meeting_id(self, value):
         meeting = Meeting.query.filter_by(id=value).first()
-        print(meeting.participate_users.filter_by(signaler_id=g.user.id).first() is not None)
         if meeting is None:
             raise ValidationError("meeting id is not exist")
         if meeting.participate_users.filter_by(signaler_id=g.user.id).first() is not None:

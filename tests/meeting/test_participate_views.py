@@ -32,3 +32,11 @@ class TestParticipateView:
                                data=data,
                                headers=self.get_auth_header(self.guest1.token))
         assert response2.status_code == 400
+
+    def test_participate_meeting(self, client):
+        self.test_participate_create(client)
+        url = url_for("meeting.participate_list")
+        response1 = client.get(url,
+                               headers=self.get_auth_header(self.guest1.token))
+        assert response1.status_code == 200
+        assert response1.json[0]["title"] == "title1"
