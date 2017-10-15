@@ -41,6 +41,14 @@ class LoginSchema(Schema):
         return user, error_msg
 
 
+class PublisherInfoSchema(Schema):
+    description = fields.Str()
+    is_registered = fields.Bool()
+    make_meetings = fields.Nested("app.meeting.schemas.MeetingSchema",
+                                  many=True,
+                                  dump_only=True)
+
+
 class UserSchema(Schema):
     id = fields.Integer(dump_only=True)
     username = fields.String()
@@ -51,6 +59,7 @@ class UserSchema(Schema):
     profile_photo_path = fields.String()
     job = fields.String()
     phone_number = fields.String()
+    publisher_info = fields.Nested(PublisherInfoSchema)
 
     @validates("username")
     def validate_username(self, value):

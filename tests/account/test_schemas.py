@@ -8,10 +8,12 @@ class TestUserSchema:
 
     @classmethod
     @pytest.fixture(autouse=True)
-    def setUp(self, db, guest1, dict_guest2):
+    def setUp(self, db, guest1, dict_guest2, publisher1, meeting1):
         self.db = db
         self.guest1 = guest1
         self.dict_guest2 = dict_guest2
+        self.publisher1 = publisher1
+        self.meeting1 = meeting1
 
     def test_read_guest1(self):
         schema = UserSchema()
@@ -25,5 +27,10 @@ class TestUserSchema:
         user2 = User(**clean_data.data)
         self.db.session.add(user2)
         self.db.session.commit()
-        assert user2.id == 3
+        assert user2.id == 4
         assert user2.username == "guest2"
+
+    def test_dump_publisher(self):
+        result, data = UserSchema().dump(self.publisher1)
+        assert result["username"] == "publisher1"
+        assert result["publisher_info"]["make_meetings"][0]["title"] == "title1"
