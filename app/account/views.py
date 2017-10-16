@@ -95,3 +95,17 @@ def following_create():
 def following_list():
     schema = PublisherInfoToUserSchema(many=True).dump(g.user.following)
     return jsonify(schema.data), 200
+
+
+@account.route("/following/<int:publisher_id>", methods=["DELETE"])
+@login_required
+def following_delete(publisher_id):
+    publisher = User.query.filter_by(id=publisher_id).first()
+    if publisher is not None:
+        follow = Follow.query.filter_by(following_id=g.user.id,
+                                        follower_id=publisher.publisher_info.id).first()
+        if follow is not None:
+            db.session.delete(follow)
+            db.session.commit()
+    return jsonify({"status": "팔로잉 취소"}), 410
+

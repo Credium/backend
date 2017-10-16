@@ -1,6 +1,6 @@
 from flask import url_for
 import pytest
-from app.account.models import User, generate_token
+from app.account.models import User, generate_token, Follow
 
 
 class TestAccountView:
@@ -223,3 +223,13 @@ class TestAccountView:
                               headers=self.get_auth_header(self.guest1.token))
         assert response.status_code == 200
         assert response.json[0]["username"] == "publisher1"
+
+    def test_following_delete(self, client):
+        self.test_following_create(client)
+        assert len(Follow.query.all()) == 1
+
+        url = url_for("account.following_delete", publisher_id=self.publisher1.id)
+        response = client.delete(url,
+                                 headers=self.get_auth_header(self.guest1.token))
+        assert response.status_code == 410
+        assert len(Follow.query.all()) == 0
