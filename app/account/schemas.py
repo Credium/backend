@@ -101,6 +101,9 @@ def load_following_id():
     return g.user.id
 
 
+def load_following_id():
+    return g.user.id
+
 class FollowSchema(Schema):
     following_id = fields.Integer(load_only=True, missing=load_following_id)
     follower_id = fields.Method(load_only=True, deserialize="load_follower_id")
