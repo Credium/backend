@@ -6,6 +6,7 @@ from app.helpers import save_image
 
 from .models import User
 from .schemas import LoginSchema, UserSchema
+from .permissions import login_required
 
 
 @account.route('/login', methods=["POST"])
@@ -23,7 +24,7 @@ def logout():
     return jsonify({"status": True})
 
 
-@account.route('/register', methods=["POST"])
+@account.route('/', methods=["POST"])
 def register():
     username = request.form.get("username", "")
     image = request.files.get("profile_photo", None)
@@ -41,14 +42,16 @@ def register():
     return jsonify(data), 201
 
 
-@account.route('/delete', methods=["DELETE"])
+@account.route('/', methods=["DELETE"])
+@login_required
 def delete():
     db.session.delete(g.user)
     db.session.commit()
     return jsonify({"status": True}), 200
 
 
-@account.route('/update', methods=["PUT"])
+@account.route('/', methods=["PUT"])
+@login_required
 def update():
     # todo: form으로 update data의 validate()수행
     g.user.username = request.form.get("username")
@@ -57,7 +60,8 @@ def update():
     return jsonify({"status": True}), 200
 
 
-@account.route('/user-info', methods=["GET"])
+@account.route('/', methods=["GET"])
+@login_required
 def user_info():
     data, errors = UserSchema().dump(g.user)
     return jsonify(data), 200

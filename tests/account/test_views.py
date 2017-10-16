@@ -131,7 +131,6 @@ class TestAccountView:
         data = dict_guest2
         response = client.post(url, data=data, content_type='multipart/form-data')
         assert response.status_code == 201
-        print(response.json)
         assert "token" in response.json
         assert len(response.json["token"]) == 40
 
