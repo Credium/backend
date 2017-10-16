@@ -1,6 +1,7 @@
-from flask import url_for
 import pytest
-from app.account.models import User, generate_token, Follow
+from flask import url_for
+
+from app.account.models import Follow, User, generate_token
 
 
 class TestAccountView:
@@ -233,3 +234,11 @@ class TestAccountView:
                                  headers=self.get_auth_header(self.guest1.token))
         assert response.status_code == 410
         assert len(Follow.query.all()) == 0
+
+    def test_follower_list(self, client):
+        self.test_following_create(client)
+        url = url_for("account.follower_list")
+        response = client.get(url,
+                              headers=self.get_auth_header(self.publisher1.token))
+        assert response.status_code == 200
+        assert response.json[0]["username"] == "guest1"

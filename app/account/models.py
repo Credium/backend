@@ -2,10 +2,10 @@ import binascii
 import os
 
 from flask_login import UserMixin
+from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.orm import relationship
 from sqlalchemy_utils.types.choice import ChoiceType
 from werkzeug.security import check_password_hash, generate_password_hash
-from sqlalchemy.ext.associationproxy import association_proxy
 
 from app.application import db, login_manager
 

@@ -1,6 +1,6 @@
 import pytest
 
-from app.account.models import User, generate_token, Follow, PublisherInfo
+from app.account.models import Follow, PublisherInfo, User, generate_token
 
 
 class TestAccountModel:

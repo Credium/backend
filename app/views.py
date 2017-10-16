@@ -1,5 +1,7 @@
 import os
-from flask import flash, g, jsonify, redirect, request, url_for, send_from_directory
+
+from flask import (flash, g, jsonify, redirect, request, send_from_directory,
+                   url_for)
 from flask_admin import AdminIndexView as _AdminIndexView
 from flask_admin import expose
 from flask_admin.contrib.sqla import ModelView as _ModelView

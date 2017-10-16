@@ -1,13 +1,14 @@
 from flask import g, jsonify, request
+from sqlalchemy.sql.expression import func
 
 from app.application import db
 from app.blueprints import account
 from app.helpers import save_image
 
-from .models import User, Follow
-from .schemas import LoginSchema, UserSchema, FollowSchema, PublisherInfoToUserSchema
-from sqlalchemy.sql.expression import func
-from .permissions import login_required
+from .models import Follow, User
+from .permissions import login_required, publisher_required
+from .schemas import (FollowSchema, LoginSchema, PublisherInfoToUserSchema,
+                      UserSchema)
 
 
 @account.route('/login', methods=["POST"])
@@ -109,3 +110,9 @@ def following_delete(publisher_id):
             db.session.commit()
     return jsonify({"status": "팔로잉 취소"}), 410
 
+
+@account.route("/follower", methods=["GET"])
+@publisher_required
+def follower_list():
+    schema = UserSchema(many=True).dump(g.user.publisher_info.follower)
+    return jsonify(schema.data), 200
