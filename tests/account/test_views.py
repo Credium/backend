@@ -155,3 +155,11 @@ class TestAccountView:
         assert response.status_code == 201
         assert response.json["follower"]["username"] == "publisher1"
         assert response.json["following"]["username"] == "guest1"
+
+    def test_following_list(self, client):
+        self.test_following_create(client)
+        url = url_for("account.following_list")
+        response = client.get(url,
+                              headers=self.get_auth_header(self.guest1.token))
+        assert response.status_code == 200
+        assert response.json[0]["username"] == "publisher1"

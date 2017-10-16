@@ -3,7 +3,7 @@ import os
 from marshmallow import Schema, ValidationError, fields, validates
 from flask import g
 from .models import User
-from app.helpers import PublisherIDSchemaMixin
+
 
 class LoginSchema(Schema):
     username = fields.String()
@@ -79,8 +79,27 @@ class UserSchema(Schema):
             return obj.type
         return obj.type.value
 
+
+class PublisherInfoToUserSchema(Schema):
+    id = fields.Integer(attribute="user.id")
+    username = fields.String(attribute="user.username")
+    type = fields.Method("get_type", attribute="user.type")
+    token = fields.String(attribute="user.token")
+    full_name = fields.String(attribute="user.full_name")
+    profile_photo_path = fields.String(attribute="user.profile_photo_path")
+    job = fields.String(attribute="user.job")
+    phone_number = fields.String(attribute="user.publisher_info")
+    publisher_info = fields.Nested(PublisherInfoSchema, attribute="user.publisher_info")
+
+    def get_type(self, obj):
+        if isinstance(obj.type, str):
+            return obj.type
+        return obj.type.value
+
+
 def load_following_id():
     return g.user.id
+
 
 class FollowSchema(Schema):
     following_id = fields.Integer(load_only=True, missing=load_following_id)

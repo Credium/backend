@@ -114,7 +114,7 @@ class Follow(db.Model):
     following = relationship("User",
                              backref="_following")
     follower = relationship("PublisherInfo",
-                             backref="_follower")
+                            backref="_follower")
     db.UniqueConstraint("following_id", "follower_id")
 
     def __repr__(self):

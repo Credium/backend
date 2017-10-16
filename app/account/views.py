@@ -5,9 +5,10 @@ from app.blueprints import account
 from app.helpers import save_image
 
 from .models import User, Follow
-from .schemas import LoginSchema, UserSchema, FollowSchema
-from  sqlalchemy.sql.expression import func
+from .schemas import LoginSchema, UserSchema, FollowSchema, PublisherInfoToUserSchema
+from sqlalchemy.sql.expression import func
 from .permissions import login_required
+
 
 @account.route('/login', methods=["POST"])
 def login():
@@ -84,3 +85,10 @@ def following_create():
             "follower": follow.follower.user}
     schema = FollowSchema().dump(data)
     return jsonify(schema.data), 201
+
+
+@account.route("/following", methods=["GET"])
+@login_required
+def following_list():
+    schema = PublisherInfoToUserSchema(many=True).dump(g.user.following)
+    return jsonify(schema.data), 200
