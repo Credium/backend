@@ -16,6 +16,7 @@ class MeetingSchema(Schema, PublisherIDSchemaMixin):
     location = fields.Str()
     entry_fee = fields.Integer()
     entry_fee_type = fields.Str()
+    meeting_photo_path = fields.String()
 
     entry_due_time = fields.DateTime()
     start_time = fields.DateTime()

@@ -4,6 +4,7 @@ from app.account.models import PublisherInfo
 from app.account.permissions import login_required, publisher_required
 from app.application import db
 from app.blueprints import meeting
+from app.helpers import save_image
 
 from .models import Meeting, Participate
 from .schemas import MeetingSchema, ParticipateSchema
@@ -12,7 +13,12 @@ from .schemas import MeetingSchema, ParticipateSchema
 @meeting.route('/', methods=["POST"])
 @publisher_required
 def meeting_create():
-    result, errors = MeetingSchema().load(request.form)
+    meeting_title = request.form.get("title", "")
+    image = request.files.get("meeting_photo", None)
+    photo_path = save_image("meeting_photo", meeting_title, image)
+    request_data = request.form.to_dict()
+    request_data["meeting_photo_path"] = photo_path
+    result, errors = MeetingSchema().load(request_data)
     if errors:
         data = {"errors": errors}
         return jsonify(data), 400

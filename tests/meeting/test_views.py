@@ -25,7 +25,8 @@ class TestMeetingView:
                                data=data,
                                headers=self.get_auth_header(self.publisher1.token))
         assert response.status_code == 201
-        assert response.json["title"] == "바둑 가르쳐 드립니다"
+        assert response.json["title"] == dict_meeting1["title"]
+        assert dict_meeting1["title"] in response.json["meeting_photo_path"]
 
         created_meeting = Meeting.query.filter_by(publisher=self.pub1_info).first()
         assert created_meeting.id == 1
@@ -38,7 +39,8 @@ class TestMeetingView:
         response = client.get(url)
         assert response.status_code == 200
         assert response.json[0]["id"] == 1
-        assert response.json[0]["title"] == "바둑 가르쳐 드립니다"
+        assert response.json[0]["title"] == dict_meeting1["title"]
+        assert dict_meeting1["title"] in response.json[0]["meeting_photo_path"]
 
     def test_get_all_meeting_success(self, client, dict_meeting1):
         self.test_meeting_create_success(client, dict_meeting1)
@@ -47,4 +49,4 @@ class TestMeetingView:
         assert response.status_code == 200
         assert len(response.json) == 1
         assert response.json[0]["id"] == 1
-        assert response.json[0]["title"] == "바둑 가르쳐 드립니다"
+        assert response.json[0]["title"] == dict_meeting1["title"]
