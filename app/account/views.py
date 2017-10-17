@@ -116,3 +116,14 @@ def following_delete(publisher_id):
 def follower_list():
     schema = UserSchema(many=True).dump(g.user.publisher_info.follower)
     return jsonify(schema.data), 200
+
+
+@account.route("/publisher/search", methods=["GET"])
+def publisher_search():
+    name = request.args.get("name", None)
+    if name is None:
+        publishers = User.query.filter_by(type="publisher").all()
+    else:
+        publishers = User.query.filter_by(type="publisher", full_name=name).all()
+    schema = UserSchema(many=True).dump(publishers)
+    return jsonify(schema.data)

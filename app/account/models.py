@@ -31,7 +31,6 @@ class User(UserMixin, db.Model):
     token = db.Column(db.String(40),
                       default=generate_token,
                       unique=True)
-
     full_name = db.Column(db.String(32))
     profile_photo_path = db.Column(db.String)
     job = db.Column(db.String(32))

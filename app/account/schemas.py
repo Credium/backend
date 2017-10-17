@@ -61,6 +61,7 @@ class UserSchema(Schema):
     job = fields.String()
     phone_number = fields.String()
     publisher_info = fields.Nested(PublisherInfoSchema)
+    balance = fields.Integer(dump_only=True)
 
     @validates("username")
     def validate_username(self, value):
@@ -101,9 +102,6 @@ class PublisherInfoToUserSchema(Schema):
 def load_following_id():
     return g.user.id
 
-
-def load_following_id():
-    return g.user.id
 
 class FollowSchema(Schema):
     following_id = fields.Integer(load_only=True, missing=load_following_id)
