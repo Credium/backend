@@ -48,6 +48,7 @@ class PublisherInfoSchema(Schema):
     make_meetings = fields.Nested("app.meeting.schemas.MeetingSchema",
                                   many=True,
                                   dump_only=True)
+    signaler_numbers = fields.Integer(dump_only=True)
 
 
 class UserSchema(Schema):

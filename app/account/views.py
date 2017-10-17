@@ -124,6 +124,7 @@ def publisher_search():
     if name is None:
         publishers = User.query.filter_by(type="publisher").all()
     else:
-        publishers = User.query.filter_by(type="publisher", full_name=name).all()
+        publishers = User.query.filter_by(type="publisher").filter(
+                                          User.full_name.like(name+"%")).all()
     schema = UserSchema(many=True).dump(publishers)
     return jsonify(schema.data)

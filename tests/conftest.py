@@ -84,7 +84,10 @@ def dict_guest2(app, db):
 
 @pytest.fixture
 def publisher1(db):
-    user = User(username="publisher1", password="publisher", type="publisher")
+    user = User(username="publisher1",
+                password="publisher",
+                type="publisher",
+                full_name="publisher1")
     user.publisher_info = PublisherInfo(description="the first publisher")
     db.session.add(user)
     db.session.commit()

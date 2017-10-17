@@ -242,3 +242,10 @@ class TestAccountView:
                               headers=self.get_auth_header(self.publisher1.token))
         assert response.status_code == 200
         assert response.json[0]["username"] == "guest1"
+
+    def test_publisher_search_list(self, client):
+        url = url_for("account.publisher_search")
+        url += "?name=publisher"
+        response = client.get(url)
+        assert response.status_code == 200
+        assert response.json[0]["publisher_info"]["signaler_numbers"] == 0

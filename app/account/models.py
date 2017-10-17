@@ -99,6 +99,9 @@ class PublisherInfo(db.Model):
         return "<%s %s>" % (self.__class__.__name__,
                             self.user.username)
 
+    def signaler_numbers(self):
+        return len(self.demanded_meetings)
+
 
 class Follow(db.Model):
     __tablename__ = 'follow'
