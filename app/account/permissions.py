@@ -17,5 +17,5 @@ def login_required(f):
     def decorated_function(*args, **kwargs):
         if g.user is not None:
             return f(*args, **kwargs)
-        return jsonify("this action is required login")
+        return jsonify("this action is required login"), 401
     return decorated_function

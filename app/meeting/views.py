@@ -1,7 +1,6 @@
 from flask import g, jsonify, request
-from sqlalchemy import text
 
-from app.account.models import PublisherInfo, User
+from app.account.models import PublisherInfo
 from app.account.permissions import login_required, publisher_required
 from app.application import db
 from app.blueprints import meeting

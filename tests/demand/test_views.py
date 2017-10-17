@@ -29,6 +29,7 @@ class TestMeetingDemandView:
                                data=data,
                                headers=self.get_auth_header(self.guest1.token))
         assert response.status_code == 201
+        assert response.json["title"] == "바둑 배우고 싶어요"
 
     def test_fail_meeting_demand_create(self, client):
         url = url_for('demand.meeting_demand_create')
@@ -60,3 +61,16 @@ class TestMeetingDemandView:
         url = url_for("demand.receive_meeting")
         response = client.get(url, headers=self.get_auth_header(self.guest1.token))
         assert response.status_code == 401
+
+    def test_person_demand_create(self, client):
+        url = url_for("demand.person_demand_create")
+        data = {
+            "full_name": "김수현",
+            "job": "연애인",
+            "description": "잘생김, ㄹㅇ 잘생김",
+            "reference_link": "없떠 그런거"
+        }
+        response = client.post(url,
+                               data=data)
+        assert response.status_code == 201
+        assert response.json["full_name"] == "김수현"

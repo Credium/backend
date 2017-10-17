@@ -2,6 +2,7 @@ import binascii
 import os
 
 from flask_login import UserMixin
+from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.orm import relationship
 from sqlalchemy_utils.types.choice import ChoiceType
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -30,7 +31,6 @@ class User(UserMixin, db.Model):
     token = db.Column(db.String(40),
                       default=generate_token,
                       unique=True)
-
     full_name = db.Column(db.String(32))
     profile_photo_path = db.Column(db.String)
     job = db.Column(db.String(32))
@@ -40,14 +40,6 @@ class User(UserMixin, db.Model):
     publisher_info = relationship("PublisherInfo",
                                   uselist=False,
                                   back_populates="user")
-    following = relationship("Follow",
-                             back_populates="subject",
-                             foreign_keys="Follow.subject_id",
-                             lazy="dynamic")
-    follower = relationship("Follow",
-                            back_populates="object",
-                            foreign_keys="Follow.object_id",
-                            lazy="dynamic")
 
     def __init__(self, *args, **kwargs):
         super(User, self).__init__(**kwargs)
@@ -107,26 +99,34 @@ class PublisherInfo(db.Model):
         return "<%s %s>" % (self.__class__.__name__,
                             self.user.username)
 
+    def signaler_numbers(self):
+        return len(self.demanded_meetings)
+
 
 class Follow(db.Model):
     __tablename__ = 'follow'
-    subject_id = db.Column(db.Integer,
-                           db.ForeignKey('users.id'),
-                           primary_key=True)
-    object_id = db.Column(db.Integer,
-                          db.ForeignKey('users.id'),
-                          primary_key=True)
-    subject = relationship("User",
-                           back_populates="following",
-                           foreign_keys="Follow.subject_id")
-    object = relationship("User",
-                          back_populates="follower",
-                          foreign_keys="Follow.object_id")
+    id = db.Column(db.Integer,
+                   primary_key=True)
+    following_id = db.Column(db.Integer,
+                             db.ForeignKey('users.id'),
+                             )
+    follower_id = db.Column(db.Integer,
+                            db.ForeignKey('publisher_info.id'),
+                            )
+    following = relationship("User",
+                             backref="_following")
+    follower = relationship("PublisherInfo",
+                            backref="_follower")
+    db.UniqueConstraint("following_id", "follower_id")
 
     def __repr__(self):
         return "<%s %s->%s>" % (self.__class__.__name__,
-                                self.subject.username,
-                                self.object.username)
+                                self.following.username,
+                                self.follower.user.username)
+
+
+PublisherInfo.follower = association_proxy("_follower", "following")
+User.following = association_proxy("_following", "follower")
 
 
 @login_manager.user_loader

@@ -1,9 +1,16 @@
+import pytest
 from flask import url_for
 
-from app.account.models import User, generate_token
+from app.account.models import Follow, User, generate_token
 
 
 class TestAccountView:
+
+    @classmethod
+    @pytest.fixture(autouse=True)
+    def setUp(self, db, guest1, publisher1):
+        self.guest1 = guest1
+        self.publisher1 = publisher1
 
     def get_guest1(self):
         return User.query.filter_by(username="guest1").first()
@@ -19,6 +26,7 @@ class TestAccountView:
             "username": "guest1",
             "password": "guest1"
         }
+        # Default Content-type is 'application/x-www-form-urlencoded'
         response = client.post(url, data=data)
         assert response.status_code == 200
         assert response.json["username"] == "guest1"
@@ -46,14 +54,74 @@ class TestAccountView:
         print(response.json)
         assert response.json["error"] == "password is not validation"
 
-    def test_logout_success(self, client, guest1):
+    def test_login_request_content_type_x_www(self, client):
+        url = url_for("account.login")
+        data = "username=guest1&password=guest1"
+        response = client.post(url, data=data, content_type='application/x-www-form-urlencoded')
+        assert response.status_code == 200
+
+    def test_login_request_content_type_x_www_with_json_data(self, client):
+        url = url_for("account.login")
+        data = {
+            "username": "guest1",
+            "password": "guest1"
+        }
+        response = client.post(url, data=data, content_type='application/x-www-form-urlencoded')
+        assert response.status_code == 200
+
+    def test_login_request_content_type_form_data_with_json_data(self, client):
+        url = url_for("account.login")
+        data = {
+            "username": "guest1",
+            "password": "guest1"
+        }
+        response = client.post(url, data=data, content_type='multipart/form-data')
+        assert response.status_code == 200
+
+    def test_login_request_content_type_text(self, client):
+        url = url_for("account.login")
+        data = "username=guest1&password=guest1"
+        response = client.post(url, data=data, content_type='text/plain')
+        assert response.status_code == 400
+
+    def test_login_request_content_type_text_with_json_data(self, client):
+        url = url_for("account.login")
+        data = {
+            "username": "guest1",
+            "password": "guest1"
+        }
+        response = client.post(url, data=data, content_type='text/plain')
+        assert response.status_code == 400
+
+    def test_login_request_content_type_json(self, client):
+        url = url_for("account.login")
+        data = "username=guest1&password=guest1"
+        response = client.post(url, data=data, content_type='application/json')
+        assert response.status_code == 400
+
+    def test_login_request_content_type_json_with_json_data(self, client):
+        url = url_for("account.login")
+        data = {
+            "username": "guest1",
+            "password": "guest1"
+        }
+        response = client.post(url, data=data, content_type='application/json')
+        assert response.status_code == 400
+
+    def test_login_request_content_type_form_data(self, client):
+        url = url_for("account.login")
+        data = "username=guest1&password=guest1"
+        response = client.post(url, data=data, content_type='multipart/form-data')
+        assert response.status_code == 400
+
+    def test_logout_success(self, client):
         url = url_for("account.logout")
-        token = guest1.token
-        header = self.get_auth_header(guest1.token)
+        token = self.guest1.token
+        header = self.get_auth_header(self.guest1.token)
         response = client.get(url,
                               headers=header)
         assert response.status_code == 200
-        assert token != guest1.token
+        assert token != self.guest1.token
 
     def test_logout_fail(self, client):
         url = url_for("account.logout")
@@ -70,7 +138,6 @@ class TestAccountView:
         data = dict_guest2
         response = client.post(url, data=data, content_type='multipart/form-data')
         assert response.status_code == 201
-        print(response.json)
         assert "token" in response.json
         assert len(response.json["token"]) == 40
 
@@ -82,15 +149,15 @@ class TestAccountView:
         assert response.status_code == 400
         assert response.json["errors"]["username"] == ["username is not unique"]
 
-    def test_delete_success(self, client, guest1):
+    def test_delete_success(self, client):
         assert self.get_guest1() is not None
         url = url_for("account.delete")
         response = client.delete(url,
-                                 headers=self.get_auth_header(guest1.token))
+                                 headers=self.get_auth_header(self.guest1.token))
         assert response.status_code == 200
         assert self.get_guest1() is None
 
-    def test_delete_fail(self, client, guest1):
+    def test_delete_fail(self, client):
         assert self.get_guest1() is not None
         url = url_for("account.delete")
         invalid_token = generate_token()
@@ -101,7 +168,7 @@ class TestAccountView:
         assert response.json["error"] == "token is not valid"
         assert self.get_guest1() is not None
 
-    def test_update_success(self, client, guest1):
+    def test_update_success(self, client):
         url = url_for("account.update")
         data = {
             "username": "guest1_update",
@@ -109,11 +176,11 @@ class TestAccountView:
         }
         response = client.put(url,
                               data=data,
-                              headers=self.get_auth_header(guest1.token))
+                              headers=self.get_auth_header(self.guest1.token))
         assert response.status_code == 200
-        assert guest1.username == "guest1_update"
+        assert self.guest1.username == "guest1_update"
 
-    def test_update_fail(self, client, guest1):
+    def test_update_fail(self, client):
         url = url_for("account.update")
         data = {
             "username": "guest1_update",
@@ -121,14 +188,64 @@ class TestAccountView:
         }
         response = client.put(url,
                               data=data,
-                              headers=self.get_auth_header(guest1.token))
+                              headers=self.get_auth_header(self.guest1.token))
         assert response.status_code == 200
         assert response.json["status"] == True
-        assert guest1.username == "guest1_update"
+        assert self.guest1.username == "guest1_update"
 
-    def test_user_info(self, client, guest1):
+    def test_user_info(self, client):
         url = url_for("account.user_info")
         response = client.get(url,
-                              headers=self.get_auth_header(guest1.token))
+                              headers=self.get_auth_header(self.guest1.token))
         assert response.status_code == 200
         assert response.json["username"] == "guest1"
+
+    def test_recommend_publisher(self, client):
+        url = url_for("account.recommend_publisher")
+        response1 = client.get(url)
+        assert response1.status_code == 200
+
+    def test_following_create(self, client):
+        url = url_for("account.following_create")
+        data = {
+            "follower_id": self.publisher1.id
+        }
+        response = client.post(url,
+                               data=data,
+                               headers=self.get_auth_header(self.guest1.token))
+        assert response.status_code == 201
+        assert response.json["follower"]["username"] == "publisher1"
+        assert response.json["following"]["username"] == "guest1"
+
+    def test_following_list(self, client):
+        self.test_following_create(client)
+        url = url_for("account.following_list")
+        response = client.get(url,
+                              headers=self.get_auth_header(self.guest1.token))
+        assert response.status_code == 200
+        assert response.json[0]["username"] == "publisher1"
+
+    def test_following_delete(self, client):
+        self.test_following_create(client)
+        assert len(Follow.query.all()) == 1
+
+        url = url_for("account.following_delete", publisher_id=self.publisher1.id)
+        response = client.delete(url,
+                                 headers=self.get_auth_header(self.guest1.token))
+        assert response.status_code == 410
+        assert len(Follow.query.all()) == 0
+
+    def test_follower_list(self, client):
+        self.test_following_create(client)
+        url = url_for("account.follower_list")
+        response = client.get(url,
+                              headers=self.get_auth_header(self.publisher1.token))
+        assert response.status_code == 200
+        assert response.json[0]["username"] == "guest1"
+
+    def test_publisher_search_list(self, client):
+        url = url_for("account.publisher_search")
+        url += "?name=publisher"
+        response = client.get(url)
+        assert response.status_code == 200
+        assert response.json[0]["publisher_info"]["signaler_numbers"] == 0
