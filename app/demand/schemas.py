@@ -1,4 +1,6 @@
 import os
+
+from flask import g, current_app
 from marshmallow import Schema, fields, validates, ValidationError
 
 from app.account.schemas import UserSchema
@@ -25,5 +27,6 @@ class PersonDemandSchema(Schema):
     def validate_profile_photo_path(self, image):
         if not isinstance(image, str):
             raise ValidationError("profile_photo_path must be a str")
-        if not os.path.isfile(image):
+        path = os.path.join(current_app.config["MEDIA_FILE_PATH"], image)
+        if not os.path.isfile(path):
             raise ValidationError("profile photo path value is not image")
