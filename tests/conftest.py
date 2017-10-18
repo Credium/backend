@@ -35,7 +35,7 @@ def admin_user(app, db):
     admin_user = User(username="admin",
                       password="admin",
                       type="admin",
-                      profile_photo_path=save_path,
+                      profile_photo_path=os.path.join("user_profile", "image03.jpg"),
                       job="의사선생님",
                       phone_number="01099725801",
                       full_name="김의사"
@@ -54,7 +54,7 @@ def guest1(app, db):
     user = User(username="guest1",
                 password="guest1",
                 type="signaler",
-                profile_photo_path=save_path,
+                profile_photo_path=os.path.join("user_profile", "image01.jpg"),
                 job="의사선생님",
                 phone_number="01099725801",
                 full_name="김의사"
@@ -67,19 +67,14 @@ def guest1(app, db):
 
 @pytest.fixture(autouse=True)
 def dict_guest2(app, db):
-    image = Image.new('RGB', (100, 100))
-    save_path = os.path.join(app.config["MEDIA_FILE_PATH"], "user_profile", "image02.jpg")
-    image.save(save_path)
     dict_user = dict(username="guest2",
                      password="guest2",
                      type="signaler",
-                     profile_photo_path=save_path,
                      job="의사선생님",
                      phone_number="01099725801",
                      full_name="김의사"
                      )
-    yield dict_user
-    os.remove(save_path)
+    return dict_user
 
 
 @pytest.fixture
