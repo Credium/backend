@@ -68,13 +68,11 @@ class User(UserMixin, db.Model):
         db.session.add(self)
         db.session.commit()
 
-    def dict(self):
-        info = {
-            "id": self.id,
-            "username": self.username,
-            "token": self.token,
-        }
-        return info
+    @property
+    def followings_id(self):
+        return [r.id for r in PublisherInfo.query.with_entities(PublisherInfo.id)\
+                              .filter(Follow.following_id==self.id).all()]
+
 
     def __repr__(self):
         return "<%s %s>" % (self.__class__.__name__,
