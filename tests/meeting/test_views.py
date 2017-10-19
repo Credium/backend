@@ -8,7 +8,7 @@ class TestMeetingView:
 
     @classmethod
     @pytest.fixture(autouse=True)
-    def setUp(self, db, guest1, publisher1):
+    def setUp(self, db, guest1, publisher1, follow1):
         self.db = db
         self.guest1 = guest1
         self.publisher1 = publisher1
@@ -48,7 +48,8 @@ class TestMeetingView:
 
     def test_meeting_list_success(self, client):
         url = url_for("meeting.meeting_list")
-        response = client.get(url)
+        response = client.get(url,
+                              headers=self.get_auth_header(self.guest1.token))
         assert response.status_code == 200
         assert response.json[0]["title"] == "title9"
 
@@ -56,13 +57,15 @@ class TestMeetingView:
         base_url = url_for("meeting.meeting_list")
 
         url = base_url + "?count=5"
-        response = client.get(url)
+        response = client.get(url,
+                              headers=self.get_auth_header(self.guest1.token))
         assert response.status_code == 200
         assert len(response.json) == 5
 
         max_id = int(response.json[-1]["id"])
         url = base_url + "?max_id={}".format(max_id)
-        response = client.get(url)
+        response = client.get(url,
+                              headers=self.get_auth_header(self.guest1.token))
         assert response.status_code == 200
         assert len(response.json) == 5
         assert response.json[0]["id"] == max_id - 1

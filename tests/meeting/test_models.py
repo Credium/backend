@@ -1,22 +1,19 @@
 import pytest
 
 from app.meeting.models import Meeting
-from app.account.models import PublisherInfo, Follow
+from app.account.models import PublisherInfo
+
 
 class TestMeetingModel:
 
     @classmethod
     @pytest.fixture(autouse=True)
-    def setUp(self, db, guest1, publisher1, meeting1, participate1):
+    def setUp(self, db, guest1, publisher1, meeting1, participate1, follow1):
         self.db = db
         self.guest1 = guest1
         self.publisher1 = publisher1
         self.meeting1 = meeting1
         self.participate1 = participate1
-        follow1 = Follow(following_id=guest1.id,
-                         follower_id=publisher1.publisher_info.id)
-        db.session.add(follow1)
-        db.session.commit()
 
     def test_make_meetings(self):
         make_meeting_count1 = len(self.publisher1.publisher_info.make_meetings)

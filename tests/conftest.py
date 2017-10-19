@@ -4,7 +4,7 @@ import os
 import pytest
 from PIL import Image
 
-from app.account.models import PublisherInfo, User
+from app.account.models import PublisherInfo, User, Follow
 from app.application import db as _db
 from app.application import create_app
 from app.meeting.models import Meeting, Participate
@@ -136,3 +136,12 @@ def participate1(db, guest1, meeting1):
     db.session.add(participate)
     db.session.commit()
     return participate
+
+
+@pytest.fixture
+def follow1(db, guest1, publisher1):
+    follow1 = Follow(following_id=guest1.id,
+                     follower_id=publisher1.publisher_info.id)
+    db.session.add(follow1)
+    db.session.commit()
+    return follow1

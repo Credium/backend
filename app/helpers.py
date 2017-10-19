@@ -43,9 +43,8 @@ def pagination_value_parser():
     return request.args.get("max_id", None), request.args.get("count", 15)
 
 
-def pagination_query(Query, max_id=None, count=15):
-    query = Query.query
+def pagination_query(Model, query, max_id=None, count=15):
     if max_id is None:
-        return query.order_by(Query.created_time.desc()).limit(count)
+        return query.order_by(Model.created_time.desc()).limit(count)
 
-    return query.filter(Query.id < max_id).order_by(Query.created_time.desc()).limit(count)
+    return query.filter(Model.id < max_id).order_by(Model.created_time.desc()).limit(count)

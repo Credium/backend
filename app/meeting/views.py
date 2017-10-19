@@ -30,9 +30,11 @@ def meeting_create():
 
 
 @meeting.route("/", methods=["GET"])
+@login_required
 def meeting_list():
     max_id, count = pagination_value_parser()
-    meetings = pagination_query(Meeting, max_id, count).all()
+    query = Meeting.query.filter(PublisherInfo.id.in_(g.user.followings_id))
+    meetings = pagination_query(Meeting, query, max_id, count).all()
     schema = MeetingSchema(many=True).dump(meetings)
     return jsonify(schema.data), 200
 
