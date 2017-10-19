@@ -1,7 +1,7 @@
 import os
 
-from flask import g, current_app
-from marshmallow import Schema, fields, validates, ValidationError
+from flask import current_app, g
+from marshmallow import Schema, ValidationError, fields, validates
 
 from app.account.schemas import UserSchema
 from app.helpers import PublisherIDSchemaMixin
