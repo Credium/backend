@@ -30,14 +30,14 @@ def meeting_create():
 
 
 @meeting.route("/", methods=["GET"])
-def get_all_meetings():
+def meeting_list():
     meetings = Meeting.query.all()
     schema = MeetingSchema(many=True).dump(meetings)
     return jsonify(schema.data), 200
 
 
 @meeting.route("/<int:publisher_id>", methods=["GET"])
-def get_publisher_meetings(publisher_id):
+def publisher_meeting_list(publisher_id):
     schema, errors = MeetingSchema(only=("publisher_id", )).load({"publisher_id": publisher_id})
     if errors:
         data = {"errors": errors}
