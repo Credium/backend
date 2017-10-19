@@ -1,7 +1,7 @@
 import os
 import time
 
-from flask import current_app
+from flask import current_app, request
 from marshmallow import ValidationError, fields, validates
 from PIL import Image
 
@@ -37,3 +37,15 @@ class PublisherIDSchemaMixin:
             return publisher.publisher_info.id
         else:
             return None
+
+
+def pagination_value_parser():
+    return request.args.get("max_id", 0), request.args.get("count", 15)
+
+
+def pagination_query(Query, max_id=None, count=15):
+    query = Query.query
+    if max_id is None:
+        return query.limit(count)
+
+    return query.filter(Query.id < max_id).limit(count)
