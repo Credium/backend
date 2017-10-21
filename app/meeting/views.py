@@ -4,7 +4,7 @@ from app.account.models import PublisherInfo
 from app.account.permissions import login_required, publisher_required
 from app.application import db
 from app.blueprints import meeting
-from app.helpers import save_image
+from app.helpers import pagination_query, pagination_value_parser, save_image
 
 from .models import Meeting, Participate
 from .schemas import MeetingSchema, ParticipateSchema
@@ -30,8 +30,11 @@ def meeting_create():
 
 
 @meeting.route("/", methods=["GET"])
+@login_required
 def meeting_list():
-    meetings = Meeting.query.all()
+    max_id, count = pagination_value_parser()
+    query = Meeting.query.filter(PublisherInfo.id.in_(g.user.followings_id))
+    meetings = pagination_query(Meeting, query, max_id, count).all()
     schema = MeetingSchema(many=True).dump(meetings)
     return jsonify(schema.data), 200
 

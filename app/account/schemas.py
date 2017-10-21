@@ -1,6 +1,6 @@
 import os
 
-from flask import g, current_app
+from flask import current_app, g
 from marshmallow import Schema, ValidationError, fields, validates
 
 from .models import User

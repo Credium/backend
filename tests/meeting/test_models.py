@@ -1,13 +1,15 @@
 import pytest
 
 from app.meeting.models import Meeting
+from app.account.models import PublisherInfo
 
 
 class TestMeetingModel:
 
     @classmethod
     @pytest.fixture(autouse=True)
-    def setUp(self, db, guest1, publisher1, meeting1, participate1):
+    def setUp(self, db, guest1, publisher1, meeting1, participate1, follow1):
+        self.db = db
         self.guest1 = guest1
         self.publisher1 = publisher1
         self.meeting1 = meeting1
@@ -23,3 +25,7 @@ class TestMeetingModel:
     def test_participated_meeting(self):
         participate = self.guest1.participate_meetings[0]
         assert participate.meeting is self.meeting1
+
+    def test_following_meeting(self):
+        meetings = Meeting.query.filter(PublisherInfo.id.in_(self.guest1.followings_id)).all()
+        assert meetings[0].title == "title1"

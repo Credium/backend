@@ -3,10 +3,10 @@ from flask import g, jsonify, request
 from app.account.permissions import publisher_required
 from app.application import db
 from app.blueprints import demand
+from app.helpers import save_image
 
 from .models import MeetingDemand, PersonDemand
 from .schemas import MeetingDemandSchema, PersonDemandSchema
-from app.helpers import save_image
 
 
 @demand.route('/meeting', methods=["POST"])
