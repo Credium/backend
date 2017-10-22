@@ -26,7 +26,6 @@ class TestAccountView:
             "username": "guest1",
             "password": "guest1"
         }
-        # Default Content-type is 'application/x-www-form-urlencoded'
         response = client.post(url, data=data)
         assert response.status_code == 200
         assert response.json["username"] == "guest1"
@@ -40,8 +39,8 @@ class TestAccountView:
         }
         response = client.post(url, data=data)
         assert response.status_code == 401
-        print(response.json)
-        assert response.json["error"] == "username is not matched any User model's row"
+        assert response.json["errors"]["username"][0] == \
+               "username is not matched any User model's row"
 
     def test_login_fail_invalid_password(self, client):
         url = url_for("account.login")
@@ -52,7 +51,7 @@ class TestAccountView:
         response = client.post(url, data=data)
         assert response.status_code == 401
         print(response.json)
-        assert response.json["error"] == "password is not validation"
+        assert response.json["errors"]["password"][0] == "password is not validation"
 
     def test_login_request_content_type_x_www(self, client):
         url = url_for("account.login")
@@ -82,7 +81,7 @@ class TestAccountView:
         url = url_for("account.login")
         data = "username=guest1&password=guest1"
         response = client.post(url, data=data, content_type='text/plain')
-        assert response.status_code == 400
+        assert response.status_code == 401
 
     def test_login_request_content_type_text_with_json_data(self, client):
         url = url_for("account.login")
@@ -91,13 +90,13 @@ class TestAccountView:
             "password": "guest1"
         }
         response = client.post(url, data=data, content_type='text/plain')
-        assert response.status_code == 400
+        assert response.status_code == 401
 
     def test_login_request_content_type_json(self, client):
         url = url_for("account.login")
         data = "username=guest1&password=guest1"
         response = client.post(url, data=data, content_type='application/json')
-        assert response.status_code == 400
+        assert response.status_code == 401
 
     def test_login_request_content_type_json_with_json_data(self, client):
         url = url_for("account.login")
@@ -106,13 +105,13 @@ class TestAccountView:
             "password": "guest1"
         }
         response = client.post(url, data=data, content_type='application/json')
-        assert response.status_code == 400
+        assert response.status_code == 401
 
     def test_login_request_content_type_form_data(self, client):
         url = url_for("account.login")
         data = "username=guest1&password=guest1"
         response = client.post(url, data=data, content_type='multipart/form-data')
-        assert response.status_code == 400
+        assert response.status_code == 401
 
     def test_logout_success(self, client):
         url = url_for("account.logout")

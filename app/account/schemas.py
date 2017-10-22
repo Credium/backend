@@ -1,7 +1,7 @@
 import os
 
 from flask import current_app, g
-from marshmallow import Schema, ValidationError, fields, validates
+from marshmallow import Schema, ValidationError, fields, validates, validates_schema, post_load
 
 from .models import User
 
@@ -10,36 +10,21 @@ class LoginSchema(Schema):
     username = fields.String()
     password = fields.String()
 
-    @validates('username')
-    def validate_username(self, value):
-        pass
-
-    @validates('password')
-    def validate_password(self, value):
-        pass
-
-    def _do_load(self, *args, **kwargs):
-        result, errors = super(LoginSchema, self)._do_load(*args, **kwargs)
-        data, _ = args
-
-        user, error_msg = self.get_valid_user(data["username"], data["password"])
-        if error_msg:
-            errors["error"] = error_msg
-        if user is not None:
-            result["user"] = UserSchema().dump(user)
-
-        return result, errors
-
-    def get_valid_user(self, username, password):
-        error_msg = ""
+    @validates_schema
+    def validate_login(self, data):
+        username = data.get("username", "")
+        password = data.get("password", "")
         user = User.query.filter_by(username=username).first()
         if user is None:
-            error_msg = "username is not matched any User model's row"
-            return None, error_msg
+            raise ValidationError("username is not matched any User model's row", "username")
         if not user.verify_password(password):
-            error_msg = "password is not validation"
-            return None, error_msg
-        return user, error_msg
+            raise ValidationError("password is not validation", "password")
+        self.user = user
+
+    @post_load
+    def user_schema_wrap(self, item):
+        schema = UserSchema().dump(self.user)
+        return schema.data
 
 
 class PublisherInfoSchema(Schema):

@@ -13,10 +13,10 @@ from .schemas import (FollowSchema, LoginSchema, PublisherInfoToUserSchema,
 
 @account.route('/login', methods=["POST"])
 def login():
-    data, errors = LoginSchema().load(request.form)
+    schema, errors = LoginSchema().load(request.form)
     if errors:
-        return jsonify(errors), 401
-    return jsonify(data["user"].data)
+        return jsonify({"errors": errors}), 401
+    return jsonify(schema)
 
 
 @account.route('/logout', methods=["GET"])
